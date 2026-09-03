@@ -65,3 +65,13 @@ def test_fonte_com_erro_regista_erro(bd):
         ex = recolher_tudo(s, apenas=["sns-noticias"])
         assert ex.erros == 1
         assert s.get(Fonte, "sns-noticias").ultimo_erro
+
+
+def test_rss_datas_invalidas_nao_rebentam():
+    from governo_sombra.ingest.rss import AdaptadorRSS
+
+    itens = AdaptadorRSS().recolher("https://x", {}, corpo=(FIXTURES / "data-invalida.xml").read_bytes())
+    assert len(itens) == 2
+    assert itens[0].publicado_em is None
+    assert itens[1].publicado_em == datetime(2026, 9, 3, 9, 0)
+    assert len(AdaptadorRSS().recolher("https://x", {"maximo": 1}, corpo=(FIXTURES / "data-invalida.xml").read_bytes())) == 1

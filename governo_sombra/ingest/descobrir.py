@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from .base import ErroFonte, obter
 
 CAMINHOS_COMUNS = ["/feed", "/feed/", "/rss", "/rss/", "/rss.xml", "/feed.xml", "/atom.xml", "/index.xml", "/noticias/feed", "/noticias/feed/", "/pt/rss", "/pt/feed", "/rss/noticias", "/pt/noticias/feed", "/?feed=rss2", "/feeds/posts/default"]
-PALAVRAS_NOTICIAS = ("noticia", "notícia", "comunicado", "imprensa", "destaque", "novidade", "atualidade", "actualidade", "publicac", "avisos", "alerta", "agenda", "consulta")
+PALAVRAS_NOTICIAS = ("noticia", "notícia", "comunicado", "imprensa", "destaque", "novidade", "atualidade", "actualidade", "publicac", "avisos", "alerta", "agenda", "consulta", "iniciativa", ".json", ".xml", "rss", "feed", "sumario", "sumário", "diario", "diário")
 
 
 def e_feed(corpo: bytes) -> bool:

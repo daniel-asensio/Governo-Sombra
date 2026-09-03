@@ -97,6 +97,8 @@ def interpretar_data(texto: str | None) -> datetime | None:
     if m:
         y, mo, d = int(m[1]), int(m[2]), int(m[3])
         h, mi, s = int(m[4] or 0), int(m[5] or 0), int(m[6] or 0)
+        if not (1990 <= y <= 2100):
+            return None
         try:
             return datetime(y, mo, d, h, mi, s)
         except ValueError:

@@ -56,7 +56,7 @@
           {% if dg.sondagem.robots %}<p>robots.txt:</p><pre>{{ dg.sondagem.robots | join('\n') }}</pre>{% endif %}
         </details></li>{% endif %}
         {% if dg.candidatas or dg.candidatas_site %}<li>Páginas que parecem de notícias/comunicados (experimentar):
-          {% for texto, u in (dg.candidatas or []) + (dg.candidatas_site or []) %}<form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input type="hidden" name="url" value="{{ u }}"><input type="hidden" name="tipo" value="html"><span>{{ texto }}</span> <small><a href="{{ u }}" target="_blank" rel="noopener">{{ u[:60] }}</a></small> <button class="ligacao">usar esta página</button></form>{% endfor %}</li>{% endif %}
+          {% for texto, u in (dg.candidatas or []) + (dg.candidatas_site or []) %}<form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input type="hidden" name="url" value="{{ u }}">{% if f.tipo in ('html', 'rss') %}<input type="hidden" name="tipo" value="{{ 'rss' if u.endswith(('.xml', '/feed', '/feed/', '/rss')) else 'html' }}">{% endif %}<span>{{ texto }}</span> <small><a href="{{ u }}" target="_blank" rel="noopener">{{ u[:60] }}</a></small> <button class="ligacao">usar esta página</button></form>{% endfor %}</li>{% endif %}
       </ul></details>
     </td></tr>
     {% endif %}
