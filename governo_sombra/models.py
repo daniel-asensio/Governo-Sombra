@@ -276,3 +276,17 @@ class Execucao(Base):
     novos: Mapped[int] = mapped_column(Integer, default=0)
     erros: Mapped[int] = mapped_column(Integer, default=0)
     detalhes: Mapped[dict | None] = mapped_column(JSON)
+
+
+class Tarefa(Base):
+    """Trabalho em segundo plano (recolha, descoberta, diagnóstico) e o seu estado."""
+
+    __tablename__ = "tarefas"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tipo: Mapped[str] = mapped_column(String(30), index=True)
+    alvo: Mapped[str | None] = mapped_column(String(80))
+    estado: Mapped[str] = mapped_column(String(20), default="a_correr")  # a_correr | ok | erro
+    inicio: Mapped[datetime] = mapped_column(DateTime, default=agora)
+    fim: Mapped[datetime | None] = mapped_column(DateTime)
+    detalhes: Mapped[dict | None] = mapped_column(JSON)

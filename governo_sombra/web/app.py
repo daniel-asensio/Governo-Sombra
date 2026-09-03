@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import threading
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from pathlib import Path
@@ -28,6 +27,7 @@ from ..models import (
     Item,
     MinistroSombra,
     Posicao,
+    Tarefa,
 )
 from . import queries
 from .auth import AutenticacaoBasica
@@ -454,41 +454,39 @@ def calendario(request: Request, todos: bool = False, s: Session = Depends(get_d
 
 
 # ---------------------------------------------------------------------------
-# Fontes
+# Fontes (trabalho pesado corre em processos separados: ver tarefas.py)
 # ---------------------------------------------------------------------------
-_ingest_lock = threading.Lock()
-_ingest_estado = {"a_correr": False, "ultimo": None}
-
-
-def _correr_ingest(apenas: list[str] | None = None):
-    from ..ingest import recolher_tudo
-
-    if not _ingest_lock.acquire(blocking=False):
-        return
-    _ingest_estado["a_correr"] = True
-    s = sessao()
-    try:
-        ex = recolher_tudo(s, apenas=apenas)
-        _ingest_estado["ultimo"] = {"novos": ex.novos, "erros": ex.erros, "fontes": ex.fontes, "fim": ex.fim.isoformat() if ex.fim else None}
-    except Exception as e:  # pragma: no cover - registo defensivo
-        log.exception("ingestão falhou")
-        _ingest_estado["ultimo"] = {"erro": str(e)}
-    finally:
-        s.close()
-        _ingest_estado["a_correr"] = False
-        _ingest_lock.release()
+from ..tarefas import lancar, tarefa_activa, ultima_tarefa  # noqa: E402
 
 
 @app.get("/fontes", response_class=HTMLResponse)
-def fontes(request: Request, s: Session = Depends(get_db)):
-    lista = list(s.scalars(select(Fonte).options(selectinload(Fonte.entidade)).order_by(Fonte.prioridade.desc(), Fonte.nome)))
+def fontes(request: Request, todas: bool = False, s: Session = Depends(get_db)):
+    lista = list(s.scalars(select(Fonte).options(selectinload(Fonte.entidade)).order_by(Fonte.activa.desc(), Fonte.prioridade.desc(), Fonte.nome)))
     execucoes = list(s.scalars(select(Execucao).order_by(Execucao.id.desc()).limit(10)))
-    return render(request, "fontes.html", fontes=lista, execucoes=execucoes, ingest=_ingest_estado, diag=_diag_estado)
+    diag_a_correr = {tk.alvo for tk in s.scalars(select(Tarefa).where(Tarefa.tipo == "diagnostico", Tarefa.estado == "a_correr"))}
+    return render(
+        request,
+        "fontes.html",
+        fontes=lista,
+        execucoes=execucoes,
+        todas=todas,
+        ingest_activa=tarefa_activa(s, "ingest"),
+        ingest_ultima=ultima_tarefa(s, "ingest"),
+        descoberta_activa=tarefa_activa(s, "descoberta"),
+        descoberta_ultima=ultima_tarefa(s, "descoberta"),
+        diag_a_correr=diag_a_correr,
+    )
 
 
 @app.post("/fontes/recolher")
-def recolher_todas():
-    threading.Thread(target=_correr_ingest, daemon=True).start()
+def recolher_todas(s: Session = Depends(get_db)):
+    lancar(s, "ingest", ["ingest"])
+    return RedirectResponse("/fontes", status_code=303)
+
+
+@app.post("/fontes/descobrir")
+def descobrir_fontes(s: Session = Depends(get_db)):
+    lancar(s, "descoberta", ["descobrir", "--aplicar", "--so-sem-fonte"])
     return RedirectResponse("/fontes", status_code=303)
 
 
@@ -497,8 +495,16 @@ def recolher_uma(fonte_id: str, s: Session = Depends(get_db)):
     f = s.get(Fonte, fonte_id)
     if f is None:
         raise HTTPException(404)
-    threading.Thread(target=_correr_ingest, args=([fonte_id],), daemon=True).start()
-    return RedirectResponse("/fontes", status_code=303)
+    lancar(s, "ingest", ["ingest", "--fonte", fonte_id], alvo=fonte_id)
+    return RedirectResponse("/fontes#" + fonte_id, status_code=303)
+
+
+@app.post("/fontes/{fonte_id}/diagnosticar")
+def diagnosticar_fonte(fonte_id: str, s: Session = Depends(get_db)):
+    if s.get(Fonte, fonte_id) is None:
+        raise HTTPException(404)
+    lancar(s, "diagnostico", ["diagnosticar", fonte_id], alvo=fonte_id)
+    return RedirectResponse("/fontes#" + fonte_id, status_code=303)
 
 
 @app.post("/fontes/{fonte_id}/alternar")
@@ -507,8 +513,10 @@ def alternar_fonte(fonte_id: str, s: Session = Depends(get_db)):
     if f is None:
         raise HTTPException(404)
     f.activa = not f.activa
+    if f.activa:
+        f.ultimo_erro = None
     s.commit()
-    return RedirectResponse("/fontes", status_code=303)
+    return RedirectResponse("/fontes#" + fonte_id, status_code=303)
 
 
 @app.post("/fontes/{fonte_id}/url")
@@ -524,83 +532,11 @@ def alterar_url_fonte(fonte_id: str, url: str = Form(...), tipo: str | None = Fo
     f.activa = True
     cfg = dict(f.config or {})
     cfg.pop("diagnostico", None)
+    cfg.pop("nota", None)
     f.config = cfg
     s.commit()
-    threading.Thread(target=_correr_ingest, args=([fonte_id],), daemon=True).start()
+    lancar(s, "ingest", ["ingest", "--fonte", fonte_id], alvo=fonte_id)
     return RedirectResponse("/fontes#" + fonte_id, status_code=303)
-
-
-_diag_estado: dict = {"a_correr": set(), "descoberta": None}
-
-
-def _correr_diagnostico(fonte_id: str):
-    from ..ingest.diagnostico import diagnosticar
-
-    _diag_estado["a_correr"].add(fonte_id)
-    s = sessao()
-    try:
-        f = s.get(Fonte, fonte_id, options=[selectinload(Fonte.entidade)])
-        if f is not None:
-            resultado = diagnosticar(f)
-            f.config = {**(f.config or {}), "diagnostico": resultado}
-            s.commit()
-    except Exception as e:  # pragma: no cover
-        log.exception("diagnóstico falhou")
-        f = s.get(Fonte, fonte_id)
-        if f is not None:
-            f.config = {**(f.config or {}), "diagnostico": {"estado": "erro", "erro": str(e)[:300]}}
-            s.commit()
-    finally:
-        s.close()
-        _diag_estado["a_correr"].discard(fonte_id)
-
-
-@app.post("/fontes/{fonte_id}/diagnosticar")
-def diagnosticar_fonte(fonte_id: str, s: Session = Depends(get_db)):
-    if s.get(Fonte, fonte_id) is None:
-        raise HTTPException(404)
-    if fonte_id not in _diag_estado["a_correr"]:
-        threading.Thread(target=_correr_diagnostico, args=(fonte_id,), daemon=True).start()
-    return RedirectResponse("/fontes#" + fonte_id, status_code=303)
-
-
-def _correr_descoberta():
-    from ..ingest.descobrir import descobrir_feeds
-
-    if _diag_estado["descoberta"] and _diag_estado["descoberta"].get("a_correr"):
-        return
-    _diag_estado["descoberta"] = {"a_correr": True, "vistas": 0, "encontrados": [], "inicio": datetime.utcnow().isoformat(timespec="minutes")}
-    s = sessao()
-    try:
-        com_sucesso = {f.entidade_id for f in s.scalars(select(Fonte).where(Fonte.ultimo_sucesso.isnot(None), Fonte.total_itens > 0))}
-        ja_auto = {f.entidade_id for f in s.scalars(select(Fonte).where(Fonte.tipo == "rss", Fonte.id.like("%-rss-auto")))}
-        entidades = [e for e in s.scalars(select(Entidade).where(Entidade.url.isnot(None), Entidade.activa.is_(True))) if e.id not in com_sucesso and e.id not in ja_auto]
-        urls_usados = {f.url.rstrip("/").lower() for f in s.scalars(select(Fonte))}
-        for e in entidades:
-            feeds = [u for u in descobrir_feeds(e.url) if u.rstrip("/").lower() not in urls_usados]
-            _diag_estado["descoberta"]["vistas"] += 1
-            if feeds:
-                urls_usados.add(feeds[0].rstrip("/").lower())
-                fid = f"{e.id}-rss-auto"
-                if s.get(Fonte, fid) is None:
-                    s.add(Fonte(id=fid, entidade_id=e.id, nome=f"{e.sigla or e.nome} - RSS (descoberto)", tipo="rss", url=feeds[0], config={}, verificada=False, prioridade=4))
-                    s.commit()
-                _diag_estado["descoberta"]["encontrados"].append((e.nome, feeds[0]))
-    except Exception as e:  # pragma: no cover
-        log.exception("descoberta falhou")
-        _diag_estado["descoberta"]["erro"] = str(e)[:300]
-    finally:
-        s.close()
-        _diag_estado["descoberta"]["a_correr"] = False
-        _diag_estado["descoberta"]["fim"] = datetime.utcnow().isoformat(timespec="minutes")
-        if _diag_estado["descoberta"]["encontrados"]:
-            threading.Thread(target=_correr_ingest, daemon=True).start()
-
-
-@app.post("/fontes/descobrir")
-def descobrir_fontes():
-    threading.Thread(target=_correr_descoberta, daemon=True).start()
-    return RedirectResponse("/fontes", status_code=303)
 
 
 # ---------------------------------------------------------------------------
@@ -664,9 +600,9 @@ def api_posicoes(s: Session = Depends(get_db)):
 
 
 @app.post("/api/ingest")
-def api_ingest():
-    threading.Thread(target=_correr_ingest, daemon=True).start()
-    return JSONResponse({"iniciado": True, "estado": _ingest_estado})
+def api_ingest(s: Session = Depends(get_db)):
+    t = lancar(s, "ingest", ["ingest"])
+    return JSONResponse({"iniciado": t is not None, "tarefa": t.id if t else None})
 
 
 @app.get("/rss.xml")

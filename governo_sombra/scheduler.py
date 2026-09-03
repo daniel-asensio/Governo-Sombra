@@ -13,12 +13,12 @@ log = logging.getLogger("governo_sombra.scheduler")
 
 
 def _tarefa_ingest():
-    from .ingest import recolher_tudo
+    from .tarefas import lancar
 
     s = sessao()
     try:
-        ex = recolher_tudo(s, intervalo_min=definicoes.ingest_interval_min)
-        log.info("recolha periódica: %d fontes, %d novos, %d erros", ex.fontes, ex.novos, ex.erros)
+        t = lancar(s, "ingest", ["ingest"])
+        log.info("recolha periódica %s", f"lançada (tarefa {t.id})" if t else "já a correr, ignorada")
     finally:
         s.close()
 

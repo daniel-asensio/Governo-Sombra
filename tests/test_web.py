@@ -107,7 +107,13 @@ def test_diagnostico_e_alterar_url(cliente, bd_com_dados):
         d = diagnosticar(f)
         assert d["estado"] == "erro"
     assert cliente.post("/fontes/sns-noticias/diagnosticar", follow_redirects=False).status_code == 303
-    assert cliente.get("/fontes").status_code == 200
+    assert any("diagnosticar" in c and "sns-noticias" in c for c in cliente.lancados)
+    # segunda vez não lança outra enquanto a primeira estiver "a correr"
+    n = len(cliente.lancados)
+    cliente.post("/fontes/sns-noticias/diagnosticar", follow_redirects=False)
+    assert len(cliente.lancados) == n
+    r = cliente.get("/fontes")
+    assert r.status_code == 200 and "fontes desactivadas" in r.text
 
 
 def test_html_heuristico():
@@ -121,3 +127,16 @@ def test_html_heuristico():
     itens = AdaptadorHTML().recolher("https://exemplo.gov.pt/noticias", {"selectores": {"item": ".nada"}}, corpo=html)
     assert [i.url for i in itens] == ["https://exemplo.gov.pt/n/1", "https://exemplo.gov.pt/n/2"]
     assert itens[0].publicado_em.year == 2026
+
+
+def test_cli_diagnosticar_regista_tarefa(bd_com_dados, capsys):
+    from governo_sombra.__main__ import main
+    from governo_sombra.models import Fonte, Tarefa
+
+    with bd_com_dados.sessao_ctx() as s:
+        s.get(Fonte, "sns-noticias").url = "http://127.0.0.1:9/x"
+    main(["diagnosticar", "sns-noticias", "--tarefa", "7"])
+    with bd_com_dados.sessao_ctx() as s:
+        t = s.get(Tarefa, 7)
+        assert t.estado == "ok" and t.tipo == "diagnostico"
+        assert s.get(Fonte, "sns-noticias").config["diagnostico"]["estado"] == "erro"

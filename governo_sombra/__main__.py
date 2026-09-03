@@ -29,10 +29,17 @@ def cmd_seed(_):
 
 def cmd_ingest(args):
     from .ingest import recolher_tudo
+    from .tarefas import iniciar_registo, terminar
 
     criar_esquema()
     with sessao_ctx() as s:
-        ex = recolher_tudo(s, apenas=args.fonte or None, dir_fixtures=Path(args.fixtures) if args.fixtures else None)
+        tarefa = iniciar_registo(s, args.tarefa, "ingest")
+        try:
+            ex = recolher_tudo(s, apenas=args.fonte or None, dir_fixtures=Path(args.fixtures) if args.fixtures else None)
+        except Exception as e:
+            terminar(s, tarefa, erro=f"{type(e).__name__}: {e}")
+            raise
+        terminar(s, tarefa, fontes=ex.fontes, novos=ex.novos, erros=ex.erros)
         print(f"fontes: {ex.fontes} · novos: {ex.novos} · erros: {ex.erros}")
         for fid, d in (ex.detalhes or {}).items():
             estado = f"erro: {d['erro'][:100]}" if d.get("erro") else f"{d['novos']} novos"
@@ -71,23 +78,67 @@ def cmd_digest(args):
 def cmd_descobrir(args):
     from .ingest.descobrir import descobrir_feeds
     from .models import Entidade, Fonte
+    from .tarefas import iniciar_registo, terminar
 
+    criar_esquema()
     with sessao_ctx() as s:
-        entidades = list(s.scalars(select(Entidade).where(Entidade.url.isnot(None))))
+        tarefa = iniciar_registo(s, args.tarefa, "descoberta")
+        entidades = list(s.scalars(select(Entidade).where(Entidade.url.isnot(None), Entidade.activa.is_(True))))
         if args.entidade:
             entidades = [e for e in entidades if e.id in args.entidade]
-        for e in entidades:
-            feeds = descobrir_feeds(e.url)
+        elif args.so_sem_fonte:
+            com_sucesso = {f.entidade_id for f in s.scalars(select(Fonte).where(Fonte.ultimo_sucesso.isnot(None), Fonte.total_itens > 0))}
+            entidades = [e for e in entidades if e.id not in com_sucesso]
+        urls_usados = {f.url.rstrip("/").lower() for f in s.scalars(select(Fonte))}
+        encontrados = []
+        for n, e in enumerate(entidades, 1):
+            feeds = [u for u in descobrir_feeds(e.url) if u.rstrip("/").lower() not in urls_usados]
+            if tarefa is not None:
+                tarefa.detalhes = {**(tarefa.detalhes or {}), "vistas": n, "total": len(entidades), "encontrados": encontrados}
+                s.commit()
             if not feeds:
                 print(f"{e.id:36s} sem feed detectado")
                 continue
             print(f"{e.id:36s} {feeds[0]}" + (f" (+{len(feeds) - 1})" if len(feeds) > 1 else ""))
             if args.aplicar:
+                urls_usados.add(feeds[0].rstrip("/").lower())
                 fid = f"{e.id}-rss-auto"
                 if s.get(Fonte, fid) is None:
-                    s.add(Fonte(id=fid, entidade_id=e.id, nome=f"{e.sigla or e.nome} - RSS (auto)", tipo="rss", url=feeds[0], config={}, verificada=False, prioridade=4))
+                    s.add(Fonte(id=fid, entidade_id=e.id, nome=f"{e.sigla or e.nome} - RSS (descoberto)", tipo="rss", url=feeds[0], config={}, verificada=False, prioridade=4))
+                    s.commit()
+                encontrados.append([e.nome, feeds[0]])
+        terminar(s, tarefa, vistas=len(entidades), total=len(entidades), encontrados=encontrados)
         if args.aplicar:
-            print("fontes adicionadas; corre `ingest` para testar")
+            print(f"{len(encontrados)} fontes adicionadas")
+            if encontrados and not args.sem_recolha:
+                from .ingest import recolher_tudo
+
+                recolher_tudo(s, apenas=[f"{fid}" for fid in (f.id for f in s.scalars(select(Fonte).where(Fonte.id.like("%-rss-auto"), Fonte.ultima_recolha.is_(None))))])
+
+
+def cmd_diagnosticar(args):
+    from .ingest.diagnostico import diagnosticar
+    from .models import Fonte
+    from .tarefas import iniciar_registo, terminar
+
+    criar_esquema()
+    with sessao_ctx() as s:
+        tarefa = iniciar_registo(s, args.tarefa, "diagnostico", args.fonte)
+        f = s.get(Fonte, args.fonte)
+        if f is None:
+            terminar(s, tarefa, erro="fonte não existe")
+            sys.exit(1)
+        try:
+            resultado = diagnosticar(f)
+        except Exception as e:
+            terminar(s, tarefa, erro=f"{type(e).__name__}: {e}")
+            raise
+        f.config = {**(f.config or {}), "diagnostico": resultado}
+        s.commit()
+        terminar(s, tarefa)
+        import json
+
+        print(json.dumps(resultado, ensure_ascii=False, indent=2))
 
 
 def cmd_serve(args):
@@ -124,6 +175,7 @@ def main(argv: list[str] | None = None):
     pi = sub.add_parser("ingest", help="recolher fontes")
     pi.add_argument("--fonte", action="append", help="id de fonte (repetível)")
     pi.add_argument("--fixtures", help="pasta com ficheiros <fonte>.xml|html|json em vez de rede")
+    pi.add_argument("--tarefa", type=int, help=argparse.SUPPRESS)
     pi.set_defaults(fn=cmd_ingest)
     sub.add_parser("reclassificar", help="voltar a aplicar regras de impacto/alertas a todos os itens").set_defaults(fn=cmd_reclassificar)
     pr = sub.add_parser("resumir", help="resumir itens relevantes com IA (requer ANTHROPIC_API_KEY)")
@@ -137,7 +189,14 @@ def main(argv: list[str] | None = None):
     pdesc = sub.add_parser("descobrir", help="detectar feeds RSS nos sites das entidades")
     pdesc.add_argument("--entidade", action="append")
     pdesc.add_argument("--aplicar", action="store_true", help="adicionar os feeds encontrados como fontes")
+    pdesc.add_argument("--so-sem-fonte", action="store_true", help="só entidades sem nenhuma fonte a funcionar")
+    pdesc.add_argument("--sem-recolha", action="store_true", help="não recolher os feeds novos no fim")
+    pdesc.add_argument("--tarefa", type=int, help=argparse.SUPPRESS)
     pdesc.set_defaults(fn=cmd_descobrir)
+    pdiag = sub.add_parser("diagnosticar", help="diagnosticar uma fonte (o que o servidor vê no URL)")
+    pdiag.add_argument("fonte")
+    pdiag.add_argument("--tarefa", type=int, help=argparse.SUPPRESS)
+    pdiag.set_defaults(fn=cmd_diagnosticar)
     ps = sub.add_parser("serve", help="arrancar a interface web")
     ps.add_argument("--host")
     ps.add_argument("--port", type=int)

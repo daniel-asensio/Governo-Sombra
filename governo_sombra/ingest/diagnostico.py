@@ -42,4 +42,39 @@ def diagnosticar(fonte: Fonte) -> dict:
         d["feeds_no_site"] = descobrir_feeds(site)[:5]
         if not corpo or d.get("parece") != "feed RSS/Atom":
             d["candidatas_site"] = ligacoes_candidatas(site)[:8]
+            d["sondagem"] = sondar_site(site)
     return d
+
+
+def sondar_site(site: str) -> dict:
+    """Pistas sobre onde está o conteúdo: robots.txt, sitemap e caminhos habituais de API."""
+    from urllib.parse import urljoin, urlparse
+
+    base = f"{urlparse(site).scheme}://{urlparse(site).netloc}/"
+    res: dict = {}
+    try:
+        robots = obter(urljoin(base, "robots.txt")).decode("utf-8", "ignore")
+        linhas = [l.strip() for l in robots.splitlines() if l.strip() and not l.startswith("#")]
+        res["robots"] = linhas[:25]
+        mapas = [l.split(":", 1)[1].strip() for l in linhas if l.lower().startswith("sitemap:")]
+    except ErroFonte:
+        mapas = []
+    for candidato in mapas + [urljoin(base, "sitemap.xml"), urljoin(base, "sitemap_index.xml")]:
+        try:
+            xml = obter(candidato).decode("utf-8", "ignore")
+        except ErroFonte:
+            continue
+        soup = BeautifulSoup(xml, "xml")
+        locs = [l.get_text(strip=True) for l in soup.find_all("loc")]
+        if locs:
+            res["sitemap"] = candidato
+            res["sitemap_exemplos"] = locs[:12]
+            res["sitemap_total"] = len(locs)
+            break
+    for caminho in ("api", "api/", "rss", "feed", "dr/rss", "dr/api"):
+        try:
+            corpo = obter(urljoin(base, caminho))
+        except ErroFonte:
+            continue
+        res.setdefault("caminhos_que_respondem", []).append({"url": urljoin(base, caminho), "inicio": limpar_texto(corpo[:300].decode("utf-8", "ignore"), 160)})
+    return res

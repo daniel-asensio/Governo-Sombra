@@ -38,10 +38,14 @@ def bd_com_dados(bd):
 
 
 @pytest.fixture()
-def cliente(bd_com_dados):
+def cliente(bd_com_dados, monkeypatch):
     from fastapi.testclient import TestClient
 
+    from governo_sombra import tarefas
     from governo_sombra.web.app import app
 
+    lancados = []
+    monkeypatch.setattr(tarefas.subprocess, "Popen", lambda cmd, **kw: lancados.append(cmd))
     with TestClient(app) as c:
+        c.lancados = lancados
         yield c
