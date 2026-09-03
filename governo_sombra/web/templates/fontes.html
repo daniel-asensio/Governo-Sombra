@@ -50,7 +50,7 @@
         {% if dg.nota %}<li class="aviso-txt">{{ dg.nota }}</li>{% endif %}
         {% if dg.feeds_no_site %}<li>Feeds RSS encontrados no site da entidade:
           {% for u in dg.feeds_no_site %}<form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input type="hidden" name="url" value="{{ u }}"><input type="hidden" name="tipo" value="rss"><code>{{ u }}</code> <button class="ligacao">usar este feed</button></form>{% endfor %}</li>{% endif %}
-          {% if dg.sondagem %}<li><details><summary>Sondagem ao site (pistas técnicas)</summary>
+          {% if dg.sondagem %}<li><details open><summary>Sondagem ao site (pistas técnicas)</summary>
           {% if dg.sondagem.sitemap %}<p>Sitemap: <code>{{ dg.sondagem.sitemap }}</code> ({{ dg.sondagem.sitemap_total }} endereços). Exemplos:</p><ul>{% for u in dg.sondagem.sitemap_exemplos %}<li><code>{{ u }}</code></li>{% endfor %}</ul>{% endif %}
           {% if dg.sondagem.caminhos_que_respondem %}<p>Caminhos que respondem:</p><ul>{% for c in dg.sondagem.caminhos_que_respondem %}<li><code>{{ c.url }}</code>: {{ c.inicio }}</li>{% endfor %}</ul>{% endif %}
           {% if dg.sondagem.robots %}<p>robots.txt:</p><pre>{{ dg.sondagem.robots | join('\n') }}</pre>{% endif %}

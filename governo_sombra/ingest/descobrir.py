@@ -75,10 +75,12 @@ def descobrir_feeds(url_site: str, *, tentar_caminhos: bool = True) -> list[str]
             if e_feed(corpo):
                 encontrados.append(candidato)
                 break
-    # Deduplicar mantendo ordem
+    # Deduplicar mantendo ordem; ignorar feeds de comentários
     vistos = set()
     unicos = []
     for u in encontrados:
+        if "comment" in u.lower():
+            continue
         if u not in vistos:
             vistos.add(u)
             unicos.append(u)

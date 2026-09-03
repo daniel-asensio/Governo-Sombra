@@ -114,11 +114,16 @@ def limpar_fontes_duplicadas(s: Session) -> int:
     import json
 
     grupos: dict[str, list[Fonte]] = {}
-    for f in s.scalars(select(Fonte)):
+    for f in list(s.scalars(select(Fonte))):
+        if f.id.endswith("-rss-auto") and "comment" in f.url.lower():
+            for item in s.scalars(select(Item).where(Item.fonte_id == f.id)):
+                s.delete(item)
+            s.delete(f)
+            removidas += 1
+            continue
         cfg = {k: v for k, v in (f.config or {}).items() if k not in ("diagnostico", "nota")}
         chave = f.url.rstrip("/").lower() + "|" + json.dumps(cfg, sort_keys=True)
         grupos.setdefault(chave, []).append(f)
-    removidas = 0
     for lista in grupos.values():
         if len(lista) < 2:
             continue
