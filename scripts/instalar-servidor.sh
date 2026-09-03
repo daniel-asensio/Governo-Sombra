@@ -13,15 +13,15 @@
 set -euo pipefail
 # Quando corre via "curl | bash", o script vem pelo stdin; as perguntas lêem do terminal.
 TTY=/dev/tty
-[ -r "$TTY" ] || TTY=/dev/stdin
+( : < /dev/tty ) 2>/dev/null || TTY=/dev/stdin
 
 RAMO="${GS_RAMO:-main}"
 PASTA="$HOME/governo-sombra"
 
 echo "== Governo Sombra: instalação no servidor =="
-IP_PUBLICO="$(curl -s --max-time 5 ifconfig.me 2>/dev/null || curl -s --max-time 5 api.ipify.org 2>/dev/null || true)"
+IP_PUBLICO="$(curl -s --max-time 5 https://api.ipify.org 2>/dev/null || curl -s --max-time 5 https://ifconfig.me/ip 2>/dev/null || true)"
 SUGESTAO=""
-[ -n "$IP_PUBLICO" ] && SUGESTAO="${IP_PUBLICO//./-}.sslip.io"
+if echo "$IP_PUBLICO" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then SUGESTAO="${IP_PUBLICO//./-}.sslip.io"; fi
 echo "Para HTTPS é preciso um nome. Sem domínio próprio, o nome automático ${SUGESTAO:-<ip>.sslip.io} serve."
 read -rp "Nome/domínio para HTTPS [${SUGESTAO:-vazio = só HTTP na porta 8000}]: " DOMINIO < "$TTY"
 DOMINIO="${DOMINIO:-$SUGESTAO}"
