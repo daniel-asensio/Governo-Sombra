@@ -65,13 +65,13 @@ fly open
 
 **Railway**: cria um projecto a partir do repositório GitHub, adiciona um volume montado em `/data`, define a variável `GS_PASSWORD` e faz deploy. O `railway.json` já indica o Dockerfile.
 
-**Grátis: VM "Always Free" da Oracle Cloud, um VPS ou um Raspberry Pi.** Cria a máquina (Ubuntu), abre as portas 80 e 443 na consola, aponta um subdomínio gratuito do DuckDNS para o IP, entra por SSH e corre:
+**Grátis: VM e2-micro do Google Cloud (nível gratuito, regiões us-west1/us-central1/us-east1), VM "Always Free" da Oracle Cloud, um VPS ou um Raspberry Pi.** Cria a máquina (Ubuntu) com tráfego HTTP e HTTPS permitido, entra por SSH (no Google Cloud há um botão "SSH" que abre no browser) e corre:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/daniel-asensio/Governo-Sombra/main/scripts/instalar-servidor.sh | bash
 ```
 
-O script instala o Docker, descarrega o código, pede o domínio e a senha, e arranca com HTTPS automático (Caddy). Sem domínio, corre `GS_PASSWORD='senha' docker compose up -d` e abre `http://<ip>:8000`.
+O script instala o Docker, descarrega o código, pede a senha e o nome para HTTPS (sugere um automático a partir do IP, por isso não precisas de comprar domínio) e arranca com certificado automático (Caddy). Sem HTTPS, corre `GS_PASSWORD='senha' docker compose up -d` e abre `http://<ip>:8000`.
 
 **Grátis em casa, só para ti:** um PC velho ou Raspberry Pi com `docker compose up -d` e o Tailscale (gratuito para uso pessoal) instalado em todos os aparelhos. Acedes de qualquer lado sem abrir portas no router.
 

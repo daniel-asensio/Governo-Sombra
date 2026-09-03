@@ -2,20 +2,32 @@
 # Instala e arranca o Governo Sombra num servidor Linux acabado de criar
 # (Ubuntu/Debian; testado com a VM "Always Free" da Oracle Cloud).
 #
-# Uso, já dentro do servidor (ssh):
+# Uso, já dentro do servidor (ssh ou "SSH no browser" do Google Cloud):
 #   curl -fsSL https://raw.githubusercontent.com/daniel-asensio/Governo-Sombra/main/scripts/instalar-servidor.sh | bash
 # ou, se já tiveres o código: bash scripts/instalar-servidor.sh
 #
-# Pergunta o domínio (ex.: o-meu-nome.duckdns.org) e a senha, instala o Docker,
-# descarrega o código e arranca a aplicação com HTTPS automático (Caddy).
+# Pergunta o nome para HTTPS (sugere um automático baseado no IP, via sslip.io)
+# e a senha, instala o Docker, descarrega o código e arranca a aplicação com
+# certificado automático (Caddy). No Google Cloud, marca "Permitir tráfego HTTP
+# e HTTPS" ao criar a VM; noutros serviços abre as portas 80 e 443.
 set -euo pipefail
+exec < /dev/tty
 
 RAMO="${GS_RAMO:-main}"
 PASTA="$HOME/governo-sombra"
 
 echo "== Governo Sombra: instalação no servidor =="
-read -rp "Domínio para HTTPS (ex.: governo-sombra.duckdns.org; vazio = só HTTP na porta 8000): " DOMINIO
-read -rsp "Senha de acesso à aplicação: " SENHA; echo
+IP_PUBLICO="$(curl -s --max-time 5 ifconfig.me 2>/dev/null || curl -s --max-time 5 api.ipify.org 2>/dev/null || true)"
+SUGESTAO=""
+[ -n "$IP_PUBLICO" ] && SUGESTAO="${IP_PUBLICO//./-}.sslip.io"
+echo "Para HTTPS é preciso um nome. Sem domínio próprio, o nome automático ${SUGESTAO:-<ip>.sslip.io} serve."
+read -rp "Nome/domínio para HTTPS [${SUGESTAO:-vazio = só HTTP na porta 8000}]: " DOMINIO
+DOMINIO="${DOMINIO:-$SUGESTAO}"
+while true; do
+  read -rsp "Senha de acesso à aplicação: " SENHA; echo
+  [ "${#SENHA}" -ge 6 ] && break
+  echo "A senha deve ter pelo menos 6 caracteres."
+done
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "-- a instalar o Docker"
