@@ -11,7 +11,9 @@
 # certificado automático (Caddy). No Google Cloud, marca "Permitir tráfego HTTP
 # e HTTPS" ao criar a VM; noutros serviços abre as portas 80 e 443.
 set -euo pipefail
-exec < /dev/tty
+# Quando corre via "curl | bash", o script vem pelo stdin; as perguntas lêem do terminal.
+TTY=/dev/tty
+[ -r "$TTY" ] || TTY=/dev/stdin
 
 RAMO="${GS_RAMO:-main}"
 PASTA="$HOME/governo-sombra"
@@ -21,10 +23,10 @@ IP_PUBLICO="$(curl -s --max-time 5 ifconfig.me 2>/dev/null || curl -s --max-time
 SUGESTAO=""
 [ -n "$IP_PUBLICO" ] && SUGESTAO="${IP_PUBLICO//./-}.sslip.io"
 echo "Para HTTPS é preciso um nome. Sem domínio próprio, o nome automático ${SUGESTAO:-<ip>.sslip.io} serve."
-read -rp "Nome/domínio para HTTPS [${SUGESTAO:-vazio = só HTTP na porta 8000}]: " DOMINIO
+read -rp "Nome/domínio para HTTPS [${SUGESTAO:-vazio = só HTTP na porta 8000}]: " DOMINIO < "$TTY"
 DOMINIO="${DOMINIO:-$SUGESTAO}"
 while true; do
-  read -rsp "Senha de acesso à aplicação: " SENHA; echo
+  read -rsp "Senha de acesso à aplicação: " SENHA < "$TTY"; echo
   [ "${#SENHA}" -ge 6 ] && break
   echo "A senha deve ter pelo menos 6 caracteres."
 done
