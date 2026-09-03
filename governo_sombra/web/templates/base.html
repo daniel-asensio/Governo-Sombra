@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Governo Sombra{% endblock %} · Governo Sombra</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="alternate" type="application/rss+xml" title="Para ti" href="/rss.xml">
+</head>
+<body>
+<header class="topo">
+  <a class="marca" href="/">Governo<span>Sombra</span></a>
+  <nav>
+    <a href="/" {% if request.url.path == '/' %}class="activo"{% endif %}>Hoje</a>
+    <a href="/feed" {% if request.url.path.startswith('/feed') %}class="activo"{% endif %}>Feed</a>
+    <a href="/estado" {% if request.url.path.startswith('/estado') %}class="activo"{% endif %}>Estado</a>
+    <a href="/sombra" {% if request.url.path.startswith('/sombra') %}class="activo"{% endif %}>Governo sombra</a>
+    <a href="/calendario" {% if request.url.path.startswith('/calendario') %}class="activo"{% endif %}>Calendário</a>
+    <a href="/alertas" {% if request.url.path.startswith('/alertas') %}class="activo"{% endif %}>Alertas</a>
+    <a href="/fontes" {% if request.url.path.startswith('/fontes') %}class="activo"{% endif %}>Fontes</a>
+    <a href="/perfil" {% if request.url.path.startswith('/perfil') %}class="activo"{% endif %}>Perfil</a>
+  </nav>
+  <form class="pesquisa" action="/feed" method="get">
+    <input type="search" name="q" placeholder="Pesquisar em tudo…" value="{{ request.query_params.get('q', '') }}">
+  </form>
+</header>
+<main class="conteudo">
+{% block conteudo %}{% endblock %}
+</main>
+<footer class="rodape">Governo Sombra v{{ versao }} · dados recolhidos de fontes oficiais; os comentários do governo sombra são opinião. <a href="/rss.xml">RSS pessoal</a> · <a href="/api/itens">API</a></footer>
+</body>
+</html>

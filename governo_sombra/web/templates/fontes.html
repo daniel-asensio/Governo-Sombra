@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}Fontes{% endblock %}
+{% block conteudo %}
+<section class="cabecalho">
+  <div>
+    <h1>Fontes <small>{{ fontes | length }}</small></h1>
+    <p class="sub">Cada entidade tem uma ou mais fontes (RSS, página HTML, JSON). URLs marcados "por verificar" foram apontados de memória e ainda não confirmados. Se uma fonte falha, corrige o URL aqui ou em <code>data/fontes.yaml</code>.</p>
+  </div>
+  <div class="accoes-item">
+    <form method="post" action="/fontes/recolher"><button {% if ingest.a_correr %}disabled{% endif %}>{{ 'A recolher…' if ingest.a_correr else 'Recolher todas agora' }}</button></form>
+  </div>
+</section>
+{% if ingest.ultimo %}<p class="sub">Última recolha em segundo plano: {{ ingest.ultimo }}</p>{% endif %}
+<table class="tabela fontes">
+  <thead><tr><th></th><th>Fonte</th><th>Entidade</th><th>Tipo</th><th>Itens</th><th>Última recolha</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+  {% for f in fontes %}
+    <tr class="{% if not f.activa %}inactiva{% endif %}">
+      <td><span class="ponto estado-{{ f.estado }}" title="{{ f.estado }}"></span></td>
+      <td>{{ f.nome }}<br><small><a href="{{ f.url }}" target="_blank" rel="noopener">{{ f.url[:70] }}{% if f.url|length > 70 %}…{% endif %}</a></small>
+        <details><summary>alterar URL</summary><form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input name="url" value="{{ f.url }}" size="50"><button>Guardar</button></form></details></td>
+      <td><a href="/estado/{{ f.entidade_id }}">{{ f.entidade.sigla or f.entidade.nome }}</a></td>
+      <td><code>{{ f.tipo }}</code>{% if not f.verificada %}<br><small class="aviso-txt">por verificar</small>{% endif %}</td>
+      <td>{{ f.total_itens }}</td>
+      <td>{{ f.ultima_recolha | relativa if f.ultima_recolha else 'nunca' }}</td>
+      <td>{% if f.ultimo_erro %}<small class="erro" title="{{ f.ultimo_erro }}">{{ f.ultimo_erro[:80] }}</small>{% elif f.ultimo_sucesso %}ok{% endif %}</td>
+      <td class="accoes">
+        <form method="post" action="/fontes/{{ f.id }}/recolher"><button class="ligacao">recolher</button></form>
+        <form method="post" action="/fontes/{{ f.id }}/alternar"><button class="ligacao">{{ 'activar' if not f.activa else 'desactivar' }}</button></form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h2>Últimas execuções</h2>
+<table class="tabela">
+  <thead><tr><th>Início</th><th>Fontes</th><th>Novos</th><th>Erros</th></tr></thead>
+  <tbody>{% for x in execucoes %}<tr><td>{{ x.inicio | data_hora }}</td><td>{{ x.fontes }}</td><td>{{ x.novos }}</td><td>{{ x.erros }}</td></tr>{% else %}<tr><td colspan="4" class="vazio">Nenhuma execução ainda.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

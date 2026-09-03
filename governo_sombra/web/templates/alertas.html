@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titulo %}Alertas{% endblock %}
+{% block conteudo %}
+<h1>Alertas</h1>
+<p class="sub">Listas de vigilância. Um item que corresponda fica etiquetado com 🔔 e sobe no "Para ti" e no RSS pessoal.</p>
+<div class="colunas">
+  <section class="coluna principal">
+    {% for a in alertas %}
+    <article class="cartao">
+      <h3>{{ a.nome }} {% if not a.activo %}<span class="badge">pausado</span>{% endif %}</h3>
+      <p>{% if a.palavras %}Palavras: {{ a.palavras | join(', ') }}{% endif %}{% if a.entidades %} · Entidades: {{ a.entidades | join(', ') }}{% endif %}{% if a.tipos %} · Tipos: {{ a.tipos | join(', ') }}{% endif %}</p>
+      <div class="accoes">
+        <form method="post" action="/alertas/{{ a.id }}/alternar"><button class="ligacao">{{ 'retomar' if not a.activo else 'pausar' }}</button></form>
+        <form method="post" action="/alertas/{{ a.id }}/eliminar" onsubmit="return confirm('Eliminar alerta?')"><button class="ligacao">eliminar</button></form>
+      </div>
+    </article>
+    {% else %}<p class="vazio">Sem alertas.</p>{% endfor %}
+  </section>
+  <aside class="coluna lateral">
+    <form method="post" action="/alertas" class="formulario bloco">
+      <h2>Novo alerta</h2>
+      <label>Nome <input name="nome" required></label>
+      <label>Palavras-chave (separadas por vírgula) <textarea name="palavras" rows="3" placeholder="IRS jovem, propinas, Lisboa"></textarea></label>
+      <label>Só destas entidades (opcional)
+        <select name="entidades" multiple size="8">{% for e in entidades %}<option value="{{ e.id }}">{{ e.nome }}</option>{% endfor %}</select>
+      </label>
+      <label>Só destes tipos (opcional)
+        <select name="tipos" multiple size="6">{% for k, v in TIPOS_DOCUMENTO.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+      </label>
+      <button>Criar</button>
+      <small>Os alertas aplicam-se aos itens recolhidos a partir de agora. Para aplicar ao histórico: <code>python -m governo_sombra reclassificar</code>.</small>
+    </form>
+  </aside>
+</div>
+{% endblock %}

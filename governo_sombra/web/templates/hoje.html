@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cartao, badge_tipo, posicao_bloco %}
+{% block titulo %}Hoje{% endblock %}
+{% block conteudo %}
+<section class="cabecalho">
+  <div>
+    <h1>O que se passa no Estado{% if perfil.nome %}, {{ perfil.nome }}{% endif %}</h1>
+    <p class="sub">{{ agora | data_extenso }} · {{ contagens.hoje }} itens hoje · {{ contagens.semana }} esta semana · {{ contagens.total }} no total</p>
+  </div>
+  <div class="estado-fontes">
+    <a href="/fontes">{{ contagens.fontes_ok }}/{{ contagens.fontes_total }} fontes ok{% if contagens.fontes_erro %} · {{ contagens.fontes_erro }} com erro{% endif %}</a>
+    {% if ultima_execucao %}<small>última recolha {{ ultima_execucao.inicio | relativa }}</small>{% endif %}
+  </div>
+</section>
+
+{% if contagens.total == 0 %}
+<section class="aviso">
+  <h2>Ainda não há dados</h2>
+  <p>Corre <code>python -m governo_sombra ingest</code> (ou carrega em "Recolher todas" na página <a href="/fontes">Fontes</a>) para começar a seguir as fontes oficiais. Para experimentar sem rede, <code>python -m governo_sombra ingest --fixtures tests/fixtures</code> carrega exemplos.</p>
+</section>
+{% endif %}
+
+<div class="colunas">
+  <section class="coluna principal">
+    <h2>Para ti <small><a href="/perfil">ajustar perfil</a></small></h2>
+    {% if para_ti %}
+      {% for i in para_ti %}{{ cartao(i, perfis_cfg) }}{% endfor %}
+    {% else %}
+      <p class="vazio">Nada relevante para os perfis escolhidos nos últimos 7 dias. Escolhe perfis em <a href="/perfil">Perfil</a> ou vê o <a href="/feed">feed completo</a>.</p>
+    {% endif %}
+
+    <h2>Mais relevante</h2>
+    {% for i in destaque %}{{ cartao(i, perfis_cfg) }}{% endfor %}
+  </section>
+
+  <aside class="coluna lateral">
+    <section class="bloco">
+      <h2>Próximos prazos <small><a href="/calendario">ver tudo</a></small></h2>
+      <ul class="prazos">
+      {% for ev in eventos %}
+        <li class="{% if ev.a_decorrer %}a-decorrer{% endif %}">
+          <strong>{{ ev.evento.titulo }}</strong>
+          {% if ev.inicio %}<span>{{ ev.inicio | data('%d/%m') }}{% if ev.fim != ev.inicio %} a {{ ev.fim | data('%d/%m') }}{% endif %}{% if ev.a_decorrer %} · a decorrer, faltam {{ ev.dias }} dias{% endif %}</span>
+          {% else %}<span>{{ ev.recorrente | replace('semanal:', 'todas as ') | replace('quinzenal:', 'de 15 em 15 dias, ') }}</span>{% endif %}
+        </li>
+      {% else %}<li class="vazio">Sem prazos próximos para o teu perfil.</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section class="bloco">
+      <h2>Esta semana por ministério</h2>
+      <ul class="barras">
+      {% for id, nome, sigla, n in contagens.por_ministerio[:12] %}
+        <li><a href="/feed?ministerio={{ id }}">{{ sigla or nome }}</a><span class="n">{{ n }}</span></li>
+      {% else %}<li class="vazio">Sem dados.</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section class="bloco">
+      <h2>Por tipo (7 dias)</h2>
+      <ul class="barras">
+      {% for tipo, n in contagens.por_tipo.items() | sort(attribute=1, reverse=True) %}
+        <li><a href="/feed?tipo={{ tipo }}">{{ badge_tipo(tipo) }}</a><span class="n">{{ n }}</span></li>
+      {% endfor %}
+      </ul>
+    </section>
+
+    <section class="bloco">
+      <h2>Governo sombra <small><a href="/sombra">ver</a></small></h2>
+      {% for p in posicoes %}{{ posicao_bloco(p) }}{% else %}<p class="vazio">Ainda sem posições. Abre um item e carrega em "Comentar como governo sombra".</p>{% endfor %}
+    </section>
+  </aside>
+</div>
+
+<section>
+  <h2>Últimos itens <small><a href="/feed">feed completo</a></small></h2>
+  <div class="grelha">
+  {% for i in recentes %}{{ cartao(i, perfis_cfg) }}{% endfor %}
+  </div>
+</section>
+{% endblock %}

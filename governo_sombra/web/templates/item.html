@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge_tipo, cartao, posicao_bloco %}
+{% block titulo %}{{ item.titulo }}{% endblock %}
+{% block conteudo %}
+<article class="item-detalhe">
+  <div class="cartao-meta">
+    {{ badge_tipo(item.tipo_documento) }}
+    {% for e in item.entidade.caminho() %}<a href="/estado/{{ e.id }}">{{ e.sigla or e.nome }}</a>{% if not loop.last %} › {% endif %}{% endfor %}
+    <time>{{ item.data | data_hora }}</time>
+    <span class="fonte">via <a href="/fontes">{{ item.fonte.nome }}</a></span>
+    <span class="relev" title="pontuação de relevância">relevância {{ item.relevancia }}</span>
+  </div>
+  <h1>{{ item.titulo }}</h1>
+  {% if item.url %}<p><a class="externo" href="{{ item.url }}" target="_blank" rel="noopener">Abrir no site oficial ↗</a></p>{% endif %}
+
+  {% if item.resumo_ia or item.porque_importa %}
+  <section class="ia">
+    <h2>Em linguagem corrente</h2>
+    {% if item.resumo_ia %}<p>{{ item.resumo_ia }}</p>{% endif %}
+    {% if item.porque_importa %}<p class="importa"><strong>Porque importa:</strong> {{ item.porque_importa }}</p>{% endif %}
+  </section>
+  {% endif %}
+
+  {% if item.resumo %}<section><h2>Resumo da fonte</h2><p>{{ item.resumo }}</p></section>{% endif %}
+  {% if item.conteudo %}<section><h2>Conteúdo</h2><div class="conteudo-fonte">{{ item.conteudo[:8000] }}{% if item.conteudo|length > 8000 %}…{% endif %}</div></section>{% endif %}
+
+  <section class="detalhes">
+    {% if item.impacto %}<p><strong>Afecta:</strong> {% for p in item.impacto %}<a class="etiqueta" href="/feed?perfil={{ p }}">{{ perfis_cfg[p].nome if p in perfis_cfg else p }}</a>{% endfor %}</p>{% endif %}
+    {% if item.regioes %}<p><strong>Regiões:</strong> {% for r in item.regioes %}<a class="etiqueta" href="/feed?regiao={{ r }}">{{ regioes_cfg[r].nome if r in regioes_cfg else r }}</a>{% endfor %}</p>{% endif %}
+    {% if item.etiquetas %}<p><strong>Etiquetas:</strong> {% for e in item.etiquetas %}<span class="etiqueta {% if e.startswith('alerta:') %}alerta{% endif %}">{{ e }}</span>{% endfor %}</p>{% endif %}
+    {% if item.extra %}<details><summary>Dados brutos</summary><pre>{{ item.extra | tojson(indent=2) }}</pre></details>{% endif %}
+  </section>
+
+  <div class="accoes-item">
+    <form method="post" action="/item/{{ item.id }}/guardar"><button>{{ '★ Guardado' if item.guardado else '☆ Guardar' }}</button></form>
+    <a class="botao" href="/sombra/posicao/nova?item={{ item.id }}">Comentar como governo sombra</a>
+  </div>
+</article>
+
+<section>
+  <h2>Posição do governo sombra</h2>
+  {% for p in item.posicoes | sort(attribute='criado_em', reverse=True) %}{{ posicao_bloco(p, mostrar_item=False) }}{% else %}<p class="vazio">Ainda sem posição. <a href="/sombra/posicao/nova?item={{ item.id }}">Escreve a primeira</a>: apoio, crítica, alternativa ou pergunta ao Governo.</p>{% endfor %}
+</section>
+
+{% if relacionados %}
+<section>
+  <h2>Mais de {{ item.entidade.sigla or item.entidade.nome }}</h2>
+  <div class="grelha">{% for r in relacionados %}{{ cartao(r, perfis_cfg, mostrar_entidade=False) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

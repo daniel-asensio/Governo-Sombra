@@ -1,0 +1,176 @@
+# Perfis "afecta-me". Cada perfil tem palavras-chave (minúsculas, sem acentos
+# não é necessário: a comparação normaliza acentos) e um peso para a relevância.
+# O utilizador escolhe os perfis que se aplicam a si em /perfil.
+perfis:
+  - id: contribuinte
+    nome: Contribuinte (todos)
+    descricao: Impostos, IRS, IVA, taxas, Orçamento do Estado.
+    peso: 2
+    palavras: [irs, iva, irc, imi, iuc, imposto, impostos, fiscal, fiscais, taxa, taxas, contribuinte, orçamento do estado, orcamento do estado, autoridade tributária, portal das finanças, e-fatura, benefício fiscal, deduções, retenção na fonte, escalões]
+  - id: trabalhador_conta_outrem
+    nome: Trabalhador por conta de outrem
+    peso: 3
+    palavras: [código do trabalho, codigo do trabalho, salário mínimo, salario minimo, contrato de trabalho, horas extraordinárias, férias, despedimento, banco de horas, teletrabalho, contratação coletiva, contratacao coletiva, greve, sindicato, subsídio de natal, subsidio de natal, subsídio de férias, licença parental, baixa médica, agenda do trabalho digno]
+  - id: trabalhador_independente
+    nome: Trabalhador independente / recibos verdes
+    peso: 3
+    palavras: [trabalhador independente, trabalhadores independentes, recibos verdes, atividade independente, declaração trimestral, contribuições, regime simplificado, categoria b, eni, empresário em nome individual]
+  - id: empresario_pme
+    nome: Empresário / PME
+    peso: 3
+    palavras: [pme, empresas, empresa, irc, licenciamento, iapmei, portugal 2030, prr, incentivos, apoio às empresas, fatura eletrónica, saf-t, lay-off, layoff, contratação, exportações, simplex, custos de contexto]
+  - id: funcionario_publico
+    nome: Funcionário público
+    peso: 3
+    palavras: [função pública, funcao publica, administração pública, administracao publica, trabalhadores do estado, carreira, carreiras, tabela remuneratória, siadap, dgaep, aposentação, cga, adse, concurso público de recrutamento, mobilidade, progressão]
+  - id: reformado_pensionista
+    nome: Reformado / pensionista
+    peso: 3
+    palavras: [pensão, pensões, pensao, pensoes, reforma, reformados, aposentação, complemento solidário para idosos, csi, idade da reforma, atualização das pensões, atualizacao das pensoes, cga, segurança social]
+  - id: estudante
+    nome: Estudante / ensino superior
+    peso: 3
+    palavras: [estudante, estudantes, propinas, bolsa de estudo, bolsas, ensino superior, universidade, politécnico, exames nacionais, acesso ao ensino superior, dges, alojamento estudantil, erasmus]
+  - id: pais_familias
+    nome: Pais / famílias com crianças
+    peso: 3
+    palavras: [abono de família, abono de familia, creche, creches, escola, escolas, manuais escolares, irs jovem, licença parental, ano letivo, ano lectivo, professores, pré-escolar, garantia para a infância, famílias numerosas, deduções por dependente]
+  - id: inquilino
+    nome: Inquilino / arrendatário
+    peso: 3
+    palavras: [arrendamento, renda, rendas, inquilino, inquilinos, senhorio, apoio à renda, porta 65, contrato de arrendamento, atualização das rendas, atualizacao das rendas, alojamento local, habitação acessível, habitacao acessivel]
+  - id: proprietario
+    nome: Proprietário / senhorio
+    peso: 3
+    palavras: [imi, senhorio, senhorios, arrendamento, mais-valias, propriedade, prédio, alojamento local, licenciamento urbanístico, obras, condomínio, imt, imposto do selo, crédito à habitação, credito a habitacao, taxa de juro, euribor]
+  - id: comprador_casa
+    nome: Quem quer comprar casa / crédito à habitação
+    peso: 3
+    palavras: [crédito à habitação, credito a habitacao, imt, imposto do selo, garantia pública, jovens até 35, euribor, taxa de juro, spread, banco de portugal, habitação, habitacao, casa própria]
+  - id: condutor
+    nome: Condutor / automóvel
+    peso: 2
+    palavras: [código da estrada, codigo da estrada, iuc, isv, carta de condução, inspeção automóvel, portagens, portagem, combustíveis, combustiveis, gasolina, gasóleo, radar, contraordenação, imt, veículos elétricos, veiculos eletricos, zonas de emissões reduzidas]
+  - id: utente_transportes
+    nome: Utente de transportes públicos
+    peso: 2
+    palavras: [passe, passes, transportes públicos, transportes publicos, cp, comboios, metro, carris, greve, autocarros, ferrovia, alta velocidade, aeroporto, tap, navegante, passe ferroviário]
+  - id: utente_sns
+    nome: Utente do SNS
+    peso: 3
+    palavras: [sns, serviço nacional de saúde, servico nacional de saude, hospital, hospitais, centro de saúde, centro de saude, médico de família, medico de familia, urgências, urgencias, taxas moderadoras, medicamentos, comparticipação, comparticipacao, vacinação, vacinacao, sns 24, lista de espera, uls]
+  - id: imigrante
+    nome: Imigrante / estrangeiro em Portugal
+    peso: 3
+    palavras: [aima, autorização de residência, autorizacao de residencia, imigração, imigracao, imigrantes, nacionalidade, vistos, visto, manifestação de interesse, reagrupamento familiar, estrangeiros, cplp, asilo]
+  - id: emigrante
+    nome: Emigrante / comunidades portuguesas
+    peso: 2
+    palavras: [emigrantes, comunidades portuguesas, consulado, consulados, cartão de cidadão no estrangeiro, voto no estrangeiro, regressar, irs regressar, não residente]
+  - id: jovem
+    nome: Jovem (até 35)
+    peso: 3
+    palavras: [jovem, jovens, irs jovem, porta 65, garantia pública, primeira habitação, estágios, cartão jovem, juventude, alojamento estudantil, ensino superior, emprego jovem]
+  - id: desempregado
+    nome: Desempregado / à procura de emprego
+    peso: 3
+    palavras: [desemprego, subsídio de desemprego, subsidio de desemprego, iefp, formação profissional, formacao profissional, ofertas de emprego, apoio à contratação, estágio, medidas ativas de emprego]
+  - id: pessoa_deficiencia
+    nome: Pessoa com deficiência / cuidador
+    peso: 3
+    palavras: [deficiência, deficiencia, incapacidade, prestação social para a inclusão, psi, cuidador informal, acessibilidade, inr, atestado multiusos, apoio à vida independente]
+  - id: consumidor_energia
+    nome: Consumidor de electricidade e gás
+    peso: 2
+    palavras: [eletricidade, electricidade, gás natural, gas natural, tarifa, tarifas, erse, tarifa social, fatura da luz, energia, autoconsumo, painéis solares, paineis solares, iva na eletricidade, mercado regulado, botija de gás]
+  - id: consumidor_telecom
+    nome: Consumidor de telecomunicações
+    peso: 1
+    palavras: [anacom, telecomunicações, telecomunicacoes, operadoras, fidelização, fidelizacao, tarifário social, tarifario social, internet, fibra, ctt, correios, roaming]
+  - id: aforrador_investidor
+    nome: Aforrador / investidor
+    peso: 2
+    palavras: [certificados de aforro, certificados do tesouro, ppr, poupança, poupanca, depósitos, depositos, juros, cmvm, mais-valias, criptoativos, banco de portugal, dívida pública, divida publica]
+  - id: agricultor
+    nome: Agricultor / produtor
+    peso: 3
+    palavras: [agricultura, agricultores, pac, ifap, pedido único, pedido unico, seca, regadio, gasóleo agrícola, gasoleo agricola, pecuária, olival, vinha, fitofarmacêuticos, dgav, prr agricultura]
+  - id: pescador
+    nome: Pescador / sector do mar
+    peso: 3
+    palavras: [pescas, pescadores, pesca, mar, sardinha, quotas de pesca, dgrm, docapesca, aquicultura, portos de pesca, mar 2030]
+  - id: profissional_saude
+    nome: Profissional de saúde
+    peso: 3
+    palavras: [médicos, medicos, enfermeiros, profissionais de saúde, dedicação plena, carreira médica, uls, horas extraordinárias no sns, ordem dos médicos, concurso médico, internato médico]
+  - id: professor
+    nome: Professor / educador
+    peso: 3
+    palavras: [professores, professor, docentes, concurso de professores, colocações, colocacoes, tempo de serviço, tempo de servico, dgae, vinculação, vinculacao, ano letivo, escolas, quadros de escola, horários]
+  - id: militar_forcas_seguranca
+    nome: Militar / forças de segurança
+    peso: 3
+    palavras: [militares, forças armadas, forcas armadas, psp, gnr, polícia, policia, suplemento de missão, condição militar, guarda prisional, bombeiros]
+  - id: autarquia
+    nome: Autarquia / poder local
+    peso: 2
+    palavras: [municípios, municipios, câmara municipal, camara municipal, freguesias, autarquias, descentralização, descentralizacao, fundo de equilíbrio financeiro, ccdr, anmp, anafre, transferência de competências, eleições autárquicas]
+  - id: associacao_ong
+    nome: Associação / IPSS / ONG
+    peso: 2
+    palavras: [ipss, associações, associacoes, associativismo, economia social, misericórdias, misericordias, ongd, voluntariado, apoios ao associativismo, cases]
+  - id: cultura
+    nome: Sector cultural
+    peso: 2
+    palavras: [cultura, artistas, dgartes, apoio às artes, património, patrimonio, museus, cinema, ica, estatuto dos profissionais da cultura, teatro, música]
+  - id: ambiente
+    nome: Ambiente e natureza
+    peso: 2
+    palavras: [ambiente, clima, alterações climáticas, alteracoes climaticas, incêndios, incendios, florestas, água, agua, seca, resíduos, residuos, poluição, poluicao, lítio, litio, áreas protegidas, biodiversidade, avaliação de impacte ambiental]
+  - id: digital_dados
+    nome: Direitos digitais e dados
+    peso: 1
+    palavras: [cnpd, proteção de dados, protecao de dados, rgpd, chave móvel digital, chave movel digital, cibersegurança, ciberseguranca, inteligência artificial, inteligencia artificial, identidade digital, cartão de cidadão, cartao de cidadao]
+
+regioes:
+  - id: norte
+    nome: Norte
+    palavras: [porto, braga, vila real, bragança, viana do castelo, minho, trás-os-montes, douro, região norte, area metropolitana do porto]
+  - id: centro
+    nome: Centro
+    palavras: [coimbra, aveiro, leiria, viseu, guarda, castelo branco, região centro, beira]
+  - id: lisboa
+    nome: Lisboa e Vale do Tejo
+    palavras: [lisboa, setúbal, setubal, santarém, santarem, área metropolitana de lisboa, area metropolitana de lisboa, oeste, lezíria]
+  - id: alentejo
+    nome: Alentejo
+    palavras: [évora, evora, beja, portalegre, alentejo, sines, alqueva]
+  - id: algarve
+    nome: Algarve
+    palavras: [faro, algarve, portimão, portimao, albufeira, tavira]
+  - id: acores
+    nome: Açores
+    palavras: [açores, acores, ponta delgada, terceira, angra do heroísmo, região autónoma dos açores]
+  - id: madeira
+    nome: Madeira
+    palavras: [madeira, funchal, porto santo, região autónoma da madeira]
+
+# Palavras-chave que associam um item transversal (Diário da República,
+# Assembleia, Conselho de Ministros) ao ministério responsável.
+ministerios:
+  ministerio-financas: [irs, iva, irc, imi, iuc, imposto, impostos, fiscal, orçamento do estado, retenção na fonte, autoridade tributária, dívida pública, tesouro, certificados de aforro, cga, adse, finanças]
+  ministerio-saude: [sns, saúde, hospital, hospitais, centro de saúde, médicos, enfermeiros, medicamentos, infarmed, vacinação, taxas moderadoras, urgências, uls]
+  ministerio-infraestruturas-habitacao: [habitação, arrendamento, rendas, renda, senhorio, inquilino, porta 65, ihru, crédito à habitação, ferrovia, comboios, aeroporto, estradas, portagens, transportes, mobilidade, imt, telecomunicações, anacom, correios]
+  ministerio-educacao-ciencia-inovacao: [escolas, escola, professores, ensino superior, propinas, bolsas de estudo, ciência, investigação, fct, exames, ano letivo, alunos, universidades, inovação]
+  ministerio-trabalho-solidariedade-seguranca-social: [trabalho, emprego, segurança social, pensões, pensão, salário mínimo, código do trabalho, desemprego, iefp, abono, prestações sociais, contribuições, deficiência, cuidador, ipss]
+  ministerio-ambiente-energia: [ambiente, energia, eletricidade, electricidade, gás, renováveis, autoconsumo, painéis solares, clima, água, resíduos, florestas, incêndios, incêndios rurais, icnf, apa, erse, áreas protegidas, poluição, ordenamento do território]
+  ministerio-justica: [justiça, tribunais, tribunal, registos, notariado, cartão de cidadão, nacionalidade, prisões, polícia judiciária, magistrados, processo civil, processo penal]
+  ministerio-administracao-interna: [psp, gnr, polícia, segurança interna, proteção civil, protecção civil, bombeiros, código da estrada, eleições, recenseamento, fronteiras, ansr, anepc]
+  ministerio-economia-coesao: [empresas, pme, economia, turismo, comércio, consumidor, consumidores, concorrência, fundos europeus, portugal 2030, prr, coesão territorial, autarquias, municípios, descentralização, ccdr, licenciamento industrial]
+  ministerio-agricultura-mar: [agricultura, agricultores, pescas, pesca, mar, pac, ifap, pecuária, veterinária, dgav, regadio, produtores, floresta de produção, aquicultura]
+  ministerio-cultura-juventude-desporto: [cultura, património, museus, artes, cinema, juventude, jovens, desporto, associativismo juvenil, ipdj, bibliotecas, arquivos]
+  ministerio-defesa: [defesa, forças armadas, militares, exército, marinha, força aérea, nato, otan, indústria de defesa]
+  ministro-estado-negocios-estrangeiros: [negócios estrangeiros, diplomacia, embaixada, consulados, comunidades portuguesas, união europeia, assuntos europeus, cooperação, cplp, emigrantes]
+  ministerio-presidencia: [modernização administrativa, digital, chave móvel digital, aima, imigração, migrações, igualdade de género, estatística, ine, cibersegurança]
+  ministerio-reforma-estado: [reforma do estado, administração pública, função pública, trabalhadores da administração pública, dgaep, simplificação, carreiras, siadap]
+  ministerio-assuntos-parlamentares: [assuntos parlamentares, comunicação social, rtp, lusa, relação com o parlamento]

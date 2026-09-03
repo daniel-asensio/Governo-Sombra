@@ -1,0 +1,647 @@
+# Fontes de informação por entidade.
+# tipo: rss | html | dre | parlamento_iniciativas | parlamento_agenda | json
+# Para fontes html, `config.selectores` define como extrair itens da página.
+# `verificada: false` significa que o URL foi apontado de memória e ainda não foi
+# confirmado a partir deste projecto. Correr `python -m governo_sombra descobrir`
+# para tentar detectar feeds RSS automaticamente a partir do site de cada entidade,
+# e `python -m governo_sombra ingest --fonte <id>` para testar uma fonte.
+fontes:
+  # --- Publicações oficiais ---------------------------------------------
+  - id: dre-serie-1
+    entidade: diario-republica
+    nome: Diário da República - 1.ª série (legislação)
+    tipo: dre
+    url: https://diariodarepublica.pt/dr/home
+    config: {serie: 1}
+    verificada: false
+    prioridade: 10
+  - id: dre-serie-2
+    entidade: diario-republica
+    nome: Diário da República - 2.ª série (actos, concursos, nomeações)
+    tipo: dre
+    url: https://diariodarepublica.pt/dr/home
+    config: {serie: 2}
+    verificada: false
+    prioridade: 6
+
+  # --- Assembleia da República --------------------------------------------
+  - id: ar-iniciativas
+    entidade: assembleia-republica
+    nome: AR - Iniciativas legislativas (dados abertos)
+    tipo: parlamento_iniciativas
+    url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+    config:
+      nota: "Substituir pelo URL do ficheiro JSON 'Iniciativas' da legislatura corrente, obtido na página de Dados Abertos."
+    verificada: false
+    prioridade: 9
+  - id: ar-agenda
+    entidade: assembleia-republica
+    nome: AR - Agenda parlamentar
+    tipo: html
+    url: https://www.parlamento.pt/AgendaParlamentar
+    config:
+      selectores:
+        item: ".agenda-item, .Agenda .item, article"
+        titulo: "h3, h4, .titulo, a"
+        link: "a"
+        data: ".data, time, .date"
+        resumo: "p, .descricao"
+    verificada: false
+    prioridade: 8
+  - id: ar-noticias
+    entidade: assembleia-republica
+    nome: AR - Notícias
+    tipo: html
+    url: https://www.parlamento.pt/Paginas/Noticias.aspx
+    config:
+      selectores:
+        item: ".noticia, .news-item, article, .row.item"
+        titulo: "h3, h4, a"
+        link: "a"
+        data: ".data, time"
+        resumo: "p"
+    verificada: false
+    prioridade: 5
+
+  # --- Governo ------------------------------------------------------------
+  - id: governo-comunicados-cm
+    entidade: governo
+    nome: Governo - Comunicados do Conselho de Ministros
+    tipo: html
+    url: https://www.portugal.gov.pt/pt/gc25/governo/comunicado-de-conselho-de-ministros
+    config:
+      selectores:
+        item: "article, .item, .list-item, li"
+        titulo: "h2, h3, a"
+        link: "a"
+        data: "time, .date, .data"
+        resumo: "p"
+    verificada: false
+    prioridade: 10
+  - id: governo-comunicacao
+    entidade: governo
+    nome: Governo - Comunicados e notícias
+    tipo: html
+    url: https://www.portugal.gov.pt/pt/gc25/comunicacao
+    config:
+      selectores:
+        item: "article, .item, .list-item"
+        titulo: "h2, h3, a"
+        link: "a"
+        data: "time, .date, .data"
+        resumo: "p"
+    verificada: false
+    prioridade: 7
+  - id: governo-agenda
+    entidade: governo
+    nome: Governo - Agenda oficial
+    tipo: html
+    url: https://www.portugal.gov.pt/pt/gc25/agenda
+    config:
+      selectores:
+        item: "article, .item, .list-item"
+        titulo: "h2, h3, a"
+        link: "a"
+        data: "time, .date, .data"
+        resumo: "p"
+    verificada: false
+    prioridade: 6
+
+  # --- Presidência e órgãos independentes ------------------------------
+  - id: presidencia-noticias
+    entidade: presidencia-republica
+    nome: Presidência - Notícias e mensagens
+    tipo: html
+    url: https://www.presidencia.pt/atualidade/toda-a-atualidade/
+    config:
+      selectores: {item: "article, .item", titulo: "h2, h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 7
+  - id: tc-acordaos
+    entidade: tribunal-constitucional
+    nome: Tribunal Constitucional - Acórdãos e decisões
+    tipo: html
+    url: https://www.tribunalconstitucional.pt/tc/acordaos/
+    config:
+      selectores: {item: "tr, li, article", titulo: "a", link: "a", data: "td, time", resumo: "td"}
+    verificada: false
+    prioridade: 5
+  - id: tcontas-noticias
+    entidade: tribunal-contas
+    nome: Tribunal de Contas - Publicações
+    tipo: html
+    url: https://www.tcontas.pt/pt-pt/Pages/Noticias.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: provedor-noticias
+    entidade: provedor-justica
+    nome: Provedor de Justiça - Notícias
+    tipo: rss
+    url: https://www.provedor-jus.pt/feed/
+    verificada: false
+    prioridade: 4
+  - id: bdp-comunicados
+    entidade: banco-portugal
+    nome: Banco de Portugal - Comunicados
+    tipo: rss
+    url: https://www.bportugal.pt/rss/comunicados
+    verificada: false
+    prioridade: 5
+  - id: cfp-publicacoes
+    entidade: conselho-financas-publicas
+    nome: Conselho das Finanças Públicas - Publicações
+    tipo: rss
+    url: https://www.cfp.pt/pt/rss
+    verificada: false
+    prioridade: 4
+  - id: cnpd-noticias
+    entidade: cnpd
+    nome: CNPD - Notícias
+    tipo: html
+    url: https://www.cnpd.pt/comunicacao-publica/noticias/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+
+  # --- Consultas públicas ----------------------------------------------
+  - id: consultalex
+    entidade: consultalex
+    nome: ConsultaLEX - Consultas públicas em curso
+    tipo: html
+    url: https://www.consultalex.gov.pt/ConsultaPublica_List.aspx
+    config:
+      tipo_documento: consulta_publica
+      selectores: {item: "tr, .consulta, article", titulo: "a, h3", link: "a", data: "td, time", resumo: "td, p"}
+    verificada: false
+    prioridade: 9
+  - id: participa
+    entidade: participa
+    nome: Participa.gov.pt - Participações em curso
+    tipo: html
+    url: https://participa.gov.pt/pt/consulta
+    config:
+      tipo_documento: consulta_publica
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 7
+
+  # --- Finanças ---------------------------------------------------------
+  - id: at-noticias
+    entidade: autoridade-tributaria
+    nome: Autoridade Tributária - Notícias e ofícios
+    tipo: html
+    url: https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/Noticias/Paginas/default.aspx
+    config:
+      selectores: {item: "article, .item, li, tr", titulo: "h3, a", link: "a", data: "time, .date, td", resumo: "p"}
+    verificada: false
+    prioridade: 8
+  - id: igcp-noticias
+    entidade: igcp
+    nome: IGCP - Certificados de Aforro e dívida
+    tipo: html
+    url: https://www.igcp.pt/pt/noticias/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: cga-noticias
+    entidade: cga
+    nome: CGA - Avisos
+    tipo: html
+    url: https://www.cga.pt/noticias.asp
+    config:
+      selectores: {item: "article, .item, li, tr", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: adse-noticias
+    entidade: adse
+    nome: ADSE - Notícias
+    tipo: html
+    url: https://www.adse.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: cmvm-comunicados
+    entidade: cmvm
+    nome: CMVM - Comunicados
+    tipo: rss
+    url: https://www.cmvm.pt/pt/Comunicados/rss
+    verificada: false
+    prioridade: 3
+
+  # --- Presidência do CM / estatística ----------------------------------
+  - id: ine-destaques
+    entidade: ine
+    nome: INE - Destaques
+    tipo: rss
+    url: https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_rss&rss=destaques
+    verificada: false
+    prioridade: 7
+  - id: ama-noticias
+    entidade: ama
+    nome: AMA - Notícias
+    tipo: rss
+    url: https://www.ama.gov.pt/web/agencia-para-a-modernizacao-administrativa/rss
+    verificada: false
+    prioridade: 3
+  - id: aima-noticias
+    entidade: aima
+    nome: AIMA - Notícias
+    tipo: html
+    url: https://aima.gov.pt/pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 6
+
+  # --- Reforma do Estado / função pública ---------------------------------
+  - id: dgaep-noticias
+    entidade: dgaep
+    nome: DGAEP - Notícias
+    tipo: html
+    url: https://www.dgaep.gov.pt/index.cfm?OBJID=noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: bep-concursos
+    entidade: bep
+    nome: BEP - Concursos na administração pública
+    tipo: rss
+    url: https://www.bep.gov.pt/pages/rss.aspx
+    config: {tipo_documento: concurso}
+    verificada: false
+    prioridade: 4
+
+  # --- Administração Interna --------------------------------------------
+  - id: anepc-avisos
+    entidade: anepc
+    nome: ANEPC - Avisos e comunicados
+    tipo: html
+    url: https://prociv.gov.pt/pt/noticias/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 6
+  - id: ansr-noticias
+    entidade: ansr
+    nome: ANSR - Notícias
+    tipo: html
+    url: https://www.ansr.pt/Noticias/Pages/default.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: psp-noticias
+    entidade: psp
+    nome: PSP - Notícias
+    tipo: rss
+    url: https://www.psp.pt/rss
+    verificada: false
+    prioridade: 2
+  - id: gnr-noticias
+    entidade: gnr
+    nome: GNR - Notícias
+    tipo: rss
+    url: https://www.gnr.pt/rss
+    verificada: false
+    prioridade: 2
+
+  # --- Justiça ----------------------------------------------------------
+  - id: justica-noticias
+    entidade: ministerio-justica
+    nome: Justiça.gov.pt - Notícias
+    tipo: rss
+    url: https://justica.gov.pt/feed
+    verificada: false
+    prioridade: 5
+  - id: irn-noticias
+    entidade: irn
+    nome: IRN - Notícias
+    tipo: html
+    url: https://irn.justica.gov.pt/Noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+
+  # --- Economia ---------------------------------------------------------
+  - id: iapmei-noticias
+    entidade: iapmei
+    nome: IAPMEI - Notícias e avisos
+    tipo: html
+    url: https://www.iapmei.pt/NOTICIAS.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: adcoesao-avisos
+    entidade: adcoesao
+    nome: Portugal 2030 - Avisos de candidatura
+    tipo: html
+    url: https://portugal2030.pt/avisos/
+    config:
+      tipo_documento: concurso
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: prr-noticias
+    entidade: recuperar-portugal
+    nome: PRR - Notícias
+    tipo: rss
+    url: https://recuperarportugal.gov.pt/feed/
+    verificada: false
+    prioridade: 4
+  - id: asae-noticias
+    entidade: asae
+    nome: ASAE - Notícias
+    tipo: html
+    url: https://www.asae.gov.pt/noticias.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: adc-noticias
+    entidade: adc
+    nome: Autoridade da Concorrência - Notícias
+    tipo: rss
+    url: https://www.concorrencia.pt/pt/rss.xml
+    verificada: false
+    prioridade: 3
+  - id: dgc-noticias
+    entidade: dgc
+    nome: Direção-Geral do Consumidor - Notícias
+    tipo: html
+    url: https://www.consumidor.gov.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+
+  # --- Educação, ciência ------------------------------------------------
+  - id: dgae-educacao-noticias
+    entidade: dgae-educacao
+    nome: DGAE - Concursos de professores
+    tipo: html
+    url: https://www.dgae.medu.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: dges-noticias
+    entidade: dges
+    nome: DGES - Acesso e bolsas
+    tipo: html
+    url: https://www.dges.gov.pt/pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: fct-noticias
+    entidade: fct
+    nome: FCT - Notícias e concursos
+    tipo: rss
+    url: https://www.fct.pt/rss
+    verificada: false
+    prioridade: 3
+  - id: iave-noticias
+    entidade: iave
+    nome: IAVE - Exames e provas
+    tipo: rss
+    url: https://iave.pt/feed/
+    verificada: false
+    prioridade: 3
+
+  # --- Saúde ------------------------------------------------------------
+  - id: sns-noticias
+    entidade: sns
+    nome: SNS - Notícias
+    tipo: rss
+    url: https://www.sns.gov.pt/feed/
+    verificada: false
+    prioridade: 6
+  - id: dgs-noticias
+    entidade: dgs
+    nome: DGS - Notícias e normas
+    tipo: html
+    url: https://www.dgs.pt/em-destaque.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: infarmed-noticias
+    entidade: infarmed
+    nome: INFARMED - Notícias e alertas
+    tipo: rss
+    url: https://www.infarmed.pt/web/infarmed/rss
+    verificada: false
+    prioridade: 5
+  - id: acss-circulares
+    entidade: acss
+    nome: ACSS - Circulares
+    tipo: html
+    url: https://www.acss.min-saude.pt/category/circulares/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: ers-noticias
+    entidade: ers
+    nome: ERS - Notícias
+    tipo: rss
+    url: https://www.ers.pt/pt/rss/
+    verificada: false
+    prioridade: 3
+
+  # --- Infraestruturas e habitação ---------------------------------------
+  - id: ihru-noticias
+    entidade: ihru
+    nome: IHRU / Portal da Habitação - Notícias
+    tipo: html
+    url: https://www.portaldahabitacao.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 6
+  - id: imt-noticias
+    entidade: imt
+    nome: IMT - Notícias
+    tipo: html
+    url: https://www.imt-ip.pt/sites/IMTT/Portugues/Noticias/Paginas/default.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: anacom-noticias
+    entidade: anacom
+    nome: ANACOM - Notícias
+    tipo: rss
+    url: https://www.anacom.pt/render.jsp?categoryId=2&rss=true
+    verificada: false
+    prioridade: 4
+  - id: ip-noticias
+    entidade: infraestruturas-portugal
+    nome: Infraestruturas de Portugal - Notícias
+    tipo: html
+    url: https://www.infraestruturasdeportugal.pt/pt-pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: cp-noticias
+    entidade: cp
+    nome: CP - Avisos e greves
+    tipo: html
+    url: https://www.cp.pt/passageiros/pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+
+  # --- Trabalho e Segurança Social ---------------------------------------
+  - id: seg-social-noticias
+    entidade: seguranca-social
+    nome: Segurança Social - Notícias
+    tipo: html
+    url: https://www.seg-social.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 7
+  - id: iefp-noticias
+    entidade: iefp
+    nome: IEFP - Notícias e apoios
+    tipo: html
+    url: https://www.iefp.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: act-noticias
+    entidade: act
+    nome: ACT - Notícias
+    tipo: html
+    url: https://portal.act.gov.pt/Pages/Noticias.aspx
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: dgert-bte
+    entidade: dgert
+    nome: DGERT - Boletim do Trabalho e Emprego
+    tipo: html
+    url: https://bte.gep.mtsss.gov.pt/
+    config:
+      selectores: {item: "article, .item, li, tr", titulo: "h3, a", link: "a", data: "time, .date, td", resumo: "p"}
+    verificada: false
+    prioridade: 4
+
+  # --- Ambiente e energia -------------------------------------------------
+  - id: apa-consultas
+    entidade: apa
+    nome: APA - Consultas públicas
+    tipo: html
+    url: https://participa.pt/pt/consultas
+    config:
+      tipo_documento: consulta_publica
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+  - id: erse-noticias
+    entidade: erse
+    nome: ERSE - Comunicados (tarifas)
+    tipo: rss
+    url: https://www.erse.pt/rss/
+    verificada: false
+    prioridade: 5
+  - id: dgeg-noticias
+    entidade: dgeg
+    nome: DGEG - Notícias e preços de combustíveis
+    tipo: html
+    url: https://www.dgeg.gov.pt/pt/destaques/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 4
+  - id: ipma-avisos
+    entidade: ipma
+    nome: IPMA - Avisos meteorológicos
+    tipo: rss
+    url: https://www.ipma.pt/pt/rss/
+    verificada: false
+    prioridade: 4
+  - id: icnf-noticias
+    entidade: icnf
+    nome: ICNF - Notícias
+    tipo: html
+    url: https://www.icnf.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: fundo-ambiental-avisos
+    entidade: fundo-ambiental
+    nome: Fundo Ambiental - Apoios abertos
+    tipo: html
+    url: https://www.fundoambiental.pt/apoios.aspx
+    config:
+      tipo_documento: concurso
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 5
+
+  # --- Cultura, juventude, desporto ----------------------------------------
+  - id: ipdj-noticias
+    entidade: ipdj
+    nome: IPDJ - Notícias e programas
+    tipo: html
+    url: https://ipdj.gov.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: dgartes-noticias
+    entidade: dgartes
+    nome: DGARTES - Concursos de apoio às artes
+    tipo: html
+    url: https://www.dgartes.gov.pt/pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 2
+
+  # --- Agricultura e mar --------------------------------------------------
+  - id: ifap-noticias
+    entidade: ifap
+    nome: IFAP - Notícias e prazos
+    tipo: html
+    url: https://www.ifap.pt/noticias
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+  - id: dgav-noticias
+    entidade: dgav
+    nome: DGAV - Notícias
+    tipo: html
+    url: https://www.dgav.pt/noticias/
+    config:
+      selectores: {item: "article, .item, li", titulo: "h3, a", link: "a", data: "time, .date", resumo: "p"}
+    verificada: false
+    prioridade: 3
+
+  # --- Contratos públicos ---------------------------------------------------
+  - id: base-contratos
+    entidade: base-gov
+    nome: BASE - Contratos públicos recentes
+    tipo: html
+    url: https://www.base.gov.pt/Base4/pt/resultados/?type=contratos&ordering=-publicationDate
+    config:
+      tipo_documento: contrato
+      selectores: {item: "tr, article, .item", titulo: "a, td", link: "a", data: "td, time", resumo: "td"}
+    verificada: false
+    prioridade: 3

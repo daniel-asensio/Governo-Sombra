@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Editar ministro sombra{% endblock %}
+{% block conteudo %}
+<h1>Editar ministro sombra</h1>
+<form method="post" class="formulario">
+  <label>Nome <input name="nome" required value="{{ m.nome }}"></label>
+  <label>Cargo <input name="cargo" required value="{{ m.cargo }}"></label>
+  <label>Bio <textarea name="bio" rows="3">{{ m.bio or '' }}</textarea></label>
+  <label>Prioridades (uma por linha) <textarea name="prioridades" rows="6">{{ (m.prioridades or []) | join('\n') }}</textarea></label>
+  <button>Guardar</button>
+</form>
+{% endblock %}

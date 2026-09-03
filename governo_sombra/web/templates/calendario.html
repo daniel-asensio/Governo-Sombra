@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cartao %}
+{% block titulo %}Calendário{% endblock %}
+{% block conteudo %}
+<h1>Calendário <small><a href="/calendario?todos={{ 'false' if todos else 'true' }}">{{ 'só o meu perfil' if todos else 'ver tudo' }}</a></small></h1>
+<p class="sub">Prazos que afectam o cidadão (IRS, IMI, candidaturas, pensões) e ritmos institucionais (Conselho de Ministros, plenário). Definidos em <code>data/calendario.yaml</code>.</p>
+<div class="colunas">
+  <section class="coluna principal">
+    <table class="tabela">
+      <thead><tr><th>Quando</th><th>O quê</th><th>Entidade</th><th>Perfis</th></tr></thead>
+      <tbody>
+      {% for ev in eventos %}
+        <tr class="{% if ev.a_decorrer %}a-decorrer{% endif %}">
+          <td>{% if ev.inicio %}{{ ev.inicio | data('%d/%m/%Y') }}{% if ev.fim != ev.inicio %} → {{ ev.fim | data('%d/%m/%Y') }}{% endif %}{% if ev.a_decorrer %}<br><small>faltam {{ ev.dias }} dias</small>{% endif %}{% else %}<small>{{ ev.recorrente }}</small>{% endif %}</td>
+          <td><strong>{{ ev.evento.titulo }}</strong>{% if ev.evento.descricao %}<br><small>{{ ev.evento.descricao }}</small>{% endif %}</td>
+          <td>{% if ev.evento.entidade %}<a href="/estado/{{ ev.evento.entidade_id }}">{{ ev.evento.entidade.sigla or ev.evento.entidade.nome }}</a>{% endif %}</td>
+          <td><small>{{ (ev.evento.perfis or []) | join(', ') }}</small></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  <aside class="coluna lateral">
+    <section class="bloco">
+      <h2>Agenda recolhida</h2>
+      {% for i in agenda %}{{ cartao(i) }}{% else %}<p class="vazio">Ainda sem itens de agenda (AR, Governo).</p>{% endfor %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

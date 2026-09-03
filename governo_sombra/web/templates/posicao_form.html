@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar posição' if posicao else 'Nova posição' }}{% endblock %}
+{% block conteudo %}
+<h1>{{ 'Editar posição' if posicao else 'Nova posição do governo sombra' }}</h1>
+{% if item %}<p class="sub">Sobre: <a href="/item/{{ item.id }}">{{ item.titulo }}</a></p>{% endif %}
+<form method="post" class="formulario" action="{{ '/sombra/posicao/' ~ posicao.id ~ '/editar' if posicao else '/sombra/posicao/nova' }}">
+  {% if item %}<input type="hidden" name="item_id" value="{{ item.id }}">{% endif %}
+  {% if not posicao %}
+  <label>Ministério / entidade
+    <select name="entidade_id" required>
+      {% for m in ministros %}<option value="{{ m.entidade_id }}" {% if entidade_id == m.entidade_id %}selected{% endif %}>{{ m.entidade.nome }}</option>{% endfor %}
+      {% if entidade_id and entidade_id not in (ministros | map(attribute='entidade_id') | list) %}<option value="{{ entidade_id }}" selected>{{ entidade_id }}</option>{% endif %}
+    </select>
+  </label>
+  {% endif %}
+  <label>Autor (ministro sombra)
+    <select name="autor_id">
+      <option value="">— sem autor —</option>
+      {% for m in ministros %}<option value="{{ m.id }}" {% if (posicao and posicao.autor_id == m.id) or (not posicao and entidade_id == m.entidade_id) %}selected{% endif %}>{{ m.nome }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Tipo
+    <select name="tipo">{% for k, v in TIPOS_POSICAO.items() %}<option value="{{ k }}" {% if posicao and posicao.tipo == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  <label>Avaliação da actuação do Governo
+    <select name="avaliacao">
+      {% for v, t in [(2, '+2 muito bom'), (1, '+1 bom'), (0, '0 neutro / não se aplica'), (-1, '-1 mau'), (-2, '-2 muito mau')] %}<option value="{{ v }}" {% if (posicao and posicao.avaliacao == v) or (not posicao and v == 0) %}selected{% endif %}>{{ t }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Título <input name="titulo" required maxlength="300" value="{{ posicao.titulo if posicao else '' }}"></label>
+  <label>Texto <textarea name="texto" rows="10" required placeholder="O que o Governo fez, o que está mal ou bem, e o que o governo sombra faria em alternativa.">{{ posicao.texto if posicao else '' }}</textarea></label>
+  <button>Publicar</button>
+</form>
+{% endblock %}

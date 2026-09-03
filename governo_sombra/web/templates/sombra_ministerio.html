@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cartao, posicao_bloco %}
+{% block titulo %}Sombra · {{ e.nome }}{% endblock %}
+{% block conteudo %}
+<nav class="migalhas"><a href="/sombra">Governo sombra</a> › <a href="/estado/{{ e.id }}">{{ e.nome }}</a></nav>
+<section class="cabecalho">
+  <div>
+    <h1>{{ m.nome if m else 'Sem ministro sombra' }} <small>{{ m.cargo if m else '' }}</small></h1>
+    <p class="sub">Face a: <strong>{{ e.titular or e.nome }}</strong>{% if e.filhos %} · Secretarias e organismos: {% for f in e.filhos[:8] %}<a href="/estado/{{ f.id }}">{{ f.sigla or f.nome }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+    {% if m and m.bio %}<p>{{ m.bio }}</p>{% endif %}
+  </div>
+  <div class="accoes-item">
+    <a class="botao" href="/sombra/posicao/nova?entidade={{ e.id }}">Nova posição</a>
+    {% if m %}<a class="botao secundario" href="/sombra/ministro/{{ m.id }}/editar">Editar ministro</a>{% endif %}
+  </div>
+</section>
+<div class="colunas">
+  <section class="coluna principal">
+    <h2>Posições ({{ posicoes | length }})</h2>
+    {% for p in posicoes %}{{ posicao_bloco(p) }}{% else %}<p class="vazio">Ainda sem posições sobre {{ e.nome }}.</p>{% endfor %}
+  </section>
+  <aside class="coluna lateral">
+    {% if m and m.prioridades %}
+    <section class="bloco"><h2>Programa sombra</h2><ol>{% for p in m.prioridades %}<li>{{ p }}</li>{% endfor %}</ol></section>
+    {% endif %}
+    <section class="bloco">
+      <h2>O que o ministério andou a fazer</h2>
+      {% for i in itens %}{{ cartao(i) }}{% else %}<p class="vazio">Sem itens recolhidos.</p>{% endfor %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

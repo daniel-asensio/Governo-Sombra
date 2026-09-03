@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cartao, paginacao, posicao_bloco %}
+{% block titulo %}{{ e.nome }}{% endblock %}
+{% block conteudo %}
+<nav class="migalhas">{% for a in e.caminho() %}<a href="/estado/{{ a.id }}">{{ a.sigla or a.nome }}</a>{% if not loop.last %} › {% endif %}{% endfor %}</nav>
+<section class="cabecalho">
+  <div>
+    <h1>{{ e.nome }} {% if e.sigla %}<small>{{ e.sigla }}</small>{% endif %}</h1>
+    <p class="sub">{{ TIPOS_ENTIDADE.get(e.tipo, e.tipo) }}{% if e.titular %} · {{ e.titular }}{% endif %}{% if e.url %} · <a href="{{ e.url }}" target="_blank" rel="noopener">{{ e.url | replace('https://', '') }} ↗</a>{% endif %}</p>
+    {% if e.descricao %}<p>{{ e.descricao }}</p>{% endif %}
+  </div>
+  <div class="accoes-item">
+    <form method="post" action="/estado/{{ e.id }}/seguir"><button>{{ 'Seguir ✓' if seguida else 'Seguir' }}</button></form>
+    <a class="botao" href="/sombra/{{ e.id }}">Governo sombra</a>
+    <a class="botao secundario" href="/feed?entidade={{ e.id }}">Feed filtrado</a>
+  </div>
+</section>
+
+<div class="colunas">
+  <section class="coluna principal">
+    <h2>Actividade recente <small>{{ total }} itens (inclui organismos dependentes)</small></h2>
+    {% for i in itens %}{{ cartao(i) }}{% else %}<p class="vazio">Ainda nada recolhido. {% if not e.fontes and not e.filhos %}Esta entidade não tem fontes configuradas: acrescenta uma em <code>data/fontes.yaml</code>.{% endif %}</p>{% endfor %}
+    {{ paginacao(pagina, total, 30, "/estado/" ~ e.id ~ "?x=1") }}
+  </section>
+  <aside class="coluna lateral">
+    {% if e.filhos %}
+    <section class="bloco">
+      <h2>Depende deste</h2>
+      <ul class="simples">{% for f in e.filhos %}<li><a href="/estado/{{ f.id }}">{{ f.nome }}</a> <span class="tipo">{{ TIPOS_ENTIDADE.get(f.tipo, f.tipo) }}</span></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+    <section class="bloco">
+      <h2>Fontes</h2>
+      <ul class="simples">
+      {% for f in e.fontes %}<li><span class="ponto estado-{{ f.estado }}"></span> {{ f.nome }} <small>{{ f.tipo }}{% if f.ultima_recolha %} · {{ f.ultima_recolha | relativa }}{% endif %}</small></li>{% else %}<li class="vazio">Sem fontes directas.</li>{% endfor %}
+      </ul>
+    </section>
+    <section class="bloco">
+      <h2>Governo sombra</h2>
+      {% if ministro %}<p><strong>{{ ministro.nome }}</strong><br><small>{{ ministro.cargo }}</small></p>{% endif %}
+      {% for p in posicoes[:5] %}{{ posicao_bloco(p) }}{% else %}<p class="vazio">Sem posições sobre esta entidade.</p>{% endfor %}
+      <a class="botao" href="/sombra/posicao/nova?entidade={{ e.id }}">Nova posição</a>
+    </section>
+  </aside>
+</div>
+{% endblock %}

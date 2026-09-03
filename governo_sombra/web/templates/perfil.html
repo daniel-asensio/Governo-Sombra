@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Perfil{% endblock %}
+{% block conteudo %}
+<h1>O que te afecta</h1>
+<p class="sub">Escolhe os perfis que se aplicam a ti. O "Para ti" da página inicial, o RSS pessoal e o resumo diário usam isto.</p>
+<form method="post" class="formulario">
+  <label>Nome (opcional) <input name="nome" value="{{ p.nome or '' }}"></label>
+  <fieldset>
+    <legend>Perfis</legend>
+    <div class="opcoes">
+    {% for pp in perfis_cfg %}
+      <label class="opcao"><input type="checkbox" name="perfis" value="{{ pp.id }}" {% if pp.id in (p.perfis or []) %}checked{% endif %}> <strong>{{ pp.nome }}</strong>{% if pp.descricao %}<small>{{ pp.descricao }}</small>{% endif %}</label>
+    {% endfor %}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Regiões</legend>
+    <div class="opcoes">
+    {% for r in regioes_cfg %}<label class="opcao"><input type="checkbox" name="regioes" value="{{ r.id }}" {% if r.id in (p.regioes or []) %}checked{% endif %}> {{ r.nome }}</label>{% endfor %}
+    </div>
+  </fieldset>
+  <label>Entidades a seguir
+    <select name="entidades" multiple size="12">{% for e in entidades %}<option value="{{ e.id }}" {% if e.id in (p.entidades_seguidas or []) %}selected{% endif %}>{{ e.nome }}</option>{% endfor %}</select>
+  </label>
+  <label>Palavras que te interessam (separadas por vírgula) <textarea name="palavras" rows="3">{{ (p.palavras or []) | join(', ') }}</textarea></label>
+  <button>Guardar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% macro badge_tipo(tipo) -%}
+<span class="badge tipo-{{ tipo }}">{{ TIPOS_DOCUMENTO.get(tipo, tipo) }}</span>
+{%- endmacro %}
+
+{% macro cartao(item, perfis_cfg=None, mostrar_entidade=True) -%}
+<article class="cartao {% if item.lido %}lido{% endif %} {% if item.guardado %}guardado{% endif %}">
+  <div class="cartao-meta">
+    {{ badge_tipo(item.tipo_documento) }}
+    {% if mostrar_entidade and item.entidade %}<a class="entidade" href="/estado/{{ item.entidade_id }}">{{ item.entidade.sigla or item.entidade.nome }}</a>{% endif %}
+    {% if item.ministerio and item.ministerio_id != item.entidade_id %}<a class="ministerio" href="/estado/{{ item.ministerio_id }}">{{ item.ministerio.sigla or item.ministerio.nome }}</a>{% endif %}
+    <time title="{{ item.data | data_hora }}">{{ item.data | relativa }}</time>
+    {% if item.relevancia >= 10 %}<span class="badge quente" title="relevância {{ item.relevancia }}">★</span>{% endif %}
+  </div>
+  <h3><a href="/item/{{ item.id }}">{{ item.titulo }}</a></h3>
+  {% if item.porque_importa %}<p class="importa">{{ item.porque_importa }}</p>
+  {% elif item.resumo_ia %}<p class="resumo">{{ item.resumo_ia }}</p>
+  {% elif item.resumo %}<p class="resumo">{{ item.resumo[:280] }}{% if item.resumo|length > 280 %}…{% endif %}</p>{% endif %}
+  {% if item.impacto or item.etiquetas %}
+  <div class="etiquetas">
+    {% for e in (item.etiquetas or []) if e.startswith('alerta:') %}<span class="etiqueta alerta">🔔 {{ e[7:] }}</span>{% endfor %}
+    {% for p in (item.impacto or [])[:5] %}<a class="etiqueta" href="/feed?perfil={{ p }}">{{ perfis_cfg[p].nome if perfis_cfg and p in perfis_cfg else p }}</a>{% endfor %}
+  </div>
+  {% endif %}
+</article>
+{%- endmacro %}
+
+{% macro paginacao(pagina, total, por_pagina, base) -%}
+{% set paginas = ((total - 1) // por_pagina) + 1 if total else 1 %}
+{% if paginas > 1 %}
+<nav class="paginacao">
+  {% if pagina > 1 %}<a href="{{ base }}&pagina={{ pagina - 1 }}">← Anterior</a>{% endif %}
+  <span>Página {{ pagina }} de {{ paginas }}</span>
+  {% if pagina < paginas %}<a href="{{ base }}&pagina={{ pagina + 1 }}">Seguinte →</a>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{% macro posicao_bloco(p, mostrar_item=True) -%}
+<article class="posicao tipo-{{ p.tipo }}">
+  <div class="posicao-meta">
+    <span class="badge pos-{{ p.tipo }}">{{ TIPOS_POSICAO.get(p.tipo, p.tipo) }}</span>
+    {% if p.avaliacao %}<span class="avaliacao aval-{{ p.avaliacao }}">{{ '👍' if p.avaliacao > 0 else '👎' }}{{ '👍' if p.avaliacao == 2 else '' }}{{ '👎' if p.avaliacao == -2 else '' }}</span>{% endif %}
+    {% if p.autor %}<strong>{{ p.autor.nome }}</strong>{% endif %}
+    <a href="/sombra/{{ p.entidade_id }}">{{ p.entidade.sigla or p.entidade.nome }}</a>
+    <time>{{ p.criado_em | data_hora }}</time>
+  </div>
+  <h4>{{ p.titulo }}</h4>
+  <p>{{ p.texto | replace('\n', '<br>') | safe }}</p>
+  {% if mostrar_item and p.item %}<p class="sobre">Sobre: <a href="/item/{{ p.item_id }}">{{ p.item.titulo }}</a></p>{% endif %}
+  <div class="accoes">
+    <a href="/sombra/posicao/{{ p.id }}/editar">editar</a>
+    <form method="post" action="/sombra/posicao/{{ p.id }}/eliminar" onsubmit="return confirm('Eliminar esta posição?')"><button class="ligacao">eliminar</button></form>
+  </div>
+</article>
+{%- endmacro %}

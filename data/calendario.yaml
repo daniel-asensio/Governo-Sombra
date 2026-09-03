@@ -1,0 +1,123 @@
+# Prazos e datas recorrentes que afectam directamente o cidadão.
+# Formato de `quando`: "MM-DD" (todos os anos) ou "MM-DD..MM-DD" (intervalo).
+# `perfis` liga cada prazo aos perfis de impacto.
+eventos:
+  - titulo: Entrega da declaração de IRS
+    quando: "04-01..06-30"
+    entidade: autoridade-tributaria
+    perfis: [contribuinte]
+    descricao: Prazo único para todos os contribuintes, no Portal das Finanças.
+  - titulo: Validação de faturas no e-Fatura
+    quando: "01-01..02-25"
+    entidade: autoridade-tributaria
+    perfis: [contribuinte]
+  - titulo: Comunicação do agregado familiar (IRS)
+    quando: "01-01..02-15"
+    entidade: autoridade-tributaria
+    perfis: [contribuinte, pais_familias]
+  - titulo: Consulta e reclamação das despesas dedutíveis (IRS)
+    quando: "03-15..03-31"
+    entidade: autoridade-tributaria
+    perfis: [contribuinte]
+  - titulo: IMI - 1.ª prestação (ou única até 100 EUR)
+    quando: "05-01..05-31"
+    entidade: autoridade-tributaria
+    perfis: [proprietario]
+  - titulo: IMI - 2.ª prestação
+    quando: "08-01..08-31"
+    entidade: autoridade-tributaria
+    perfis: [proprietario]
+  - titulo: IMI - 3.ª prestação
+    quando: "11-01..11-30"
+    entidade: autoridade-tributaria
+    perfis: [proprietario]
+  - titulo: IUC - pagamento até ao fim do mês da matrícula
+    quando: "01-01..12-31"
+    entidade: autoridade-tributaria
+    perfis: [condutor]
+    descricao: O IUC paga-se anualmente até ao último dia do mês em que o veículo foi matriculado.
+  - titulo: Declaração trimestral de trabalhadores independentes (Jan)
+    quando: "01-01..01-31"
+    entidade: seguranca-social
+    perfis: [trabalhador_independente]
+  - titulo: Declaração trimestral de trabalhadores independentes (Abr)
+    quando: "04-01..04-30"
+    entidade: seguranca-social
+    perfis: [trabalhador_independente]
+  - titulo: Declaração trimestral de trabalhadores independentes (Jul)
+    quando: "07-01..07-31"
+    entidade: seguranca-social
+    perfis: [trabalhador_independente]
+  - titulo: Declaração trimestral de trabalhadores independentes (Out)
+    quando: "10-01..10-31"
+    entidade: seguranca-social
+    perfis: [trabalhador_independente]
+  - titulo: Entrega da proposta de Orçamento do Estado na AR
+    quando: "10-10"
+    entidade: ministerio-financas
+    perfis: [contribuinte, funcionario_publico, reformado_pensionista]
+    descricao: Prazo legal para o Governo entregar a proposta de OE do ano seguinte.
+  - titulo: Votação final global do Orçamento do Estado
+    quando: "11-20..11-30"
+    entidade: assembleia-republica
+    perfis: [contribuinte]
+  - titulo: Candidaturas ao ensino superior - 1.ª fase
+    quando: "07-15..08-05"
+    entidade: dges
+    perfis: [estudante, pais_familias, jovem]
+  - titulo: Candidaturas a bolsas de estudo do ensino superior
+    quando: "06-25..09-30"
+    entidade: dges
+    perfis: [estudante, jovem]
+  - titulo: Exames nacionais do ensino secundário - 1.ª fase
+    quando: "06-15..06-30"
+    entidade: iave
+    perfis: [estudante, pais_familias]
+  - titulo: Início do ano lectivo
+    quando: "09-10..09-17"
+    entidade: dgeste
+    perfis: [pais_familias, professor]
+  - titulo: Pedido Único da PAC
+    quando: "02-01..05-15"
+    entidade: ifap
+    perfis: [agricultor]
+  - titulo: Actualização anual das pensões
+    quando: "01-01"
+    entidade: seguranca-social
+    perfis: [reformado_pensionista]
+  - titulo: Actualização do salário mínimo nacional
+    quando: "01-01"
+    entidade: se-trabalho
+    perfis: [trabalhador_conta_outrem]
+  - titulo: Coeficiente de actualização das rendas publicado
+    quando: "10-15..10-31"
+    entidade: ine
+    perfis: [inquilino, proprietario]
+    descricao: O INE publica o coeficiente que os senhorios podem aplicar no ano seguinte.
+  - titulo: Tarifas reguladas de electricidade e gás para o ano seguinte
+    quando: "12-15"
+    entidade: erse
+    perfis: [consumidor_energia]
+  - titulo: Época de incêndios - período crítico
+    quando: "07-01..09-30"
+    entidade: icnf
+    perfis: [ambiente, agricultor]
+  - titulo: Renovação do cartão de cidadão de menores (cada 5 anos)
+    quando: "01-01..12-31"
+    entidade: irn
+    perfis: [pais_familias]
+    descricao: Lembrete permanente; o prazo depende da validade de cada cartão.
+  - titulo: Conselho de Ministros (reunião semanal)
+    quando: semanal:quinta
+    entidade: governo
+    perfis: []
+    descricao: Reúne normalmente à quinta-feira; o comunicado é publicado no mesmo dia.
+  - titulo: Sessões plenárias da Assembleia da República
+    quando: semanal:quarta,quinta,sexta
+    entidade: assembleia-republica
+    perfis: []
+    descricao: Plenário reúne habitualmente de quarta a sexta durante a sessão legislativa (Setembro a Junho).
+  - titulo: Debate quinzenal com o Primeiro-Ministro
+    quando: quinzenal:quarta
+    entidade: assembleia-republica
+    perfis: []

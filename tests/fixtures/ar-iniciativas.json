@@ -1,0 +1,10 @@
+{"Iniciativas": [
+ {"IniId": "1", "IniLeg": "XVII", "IniSel": "2", "IniNr": "412", "IniTipo": "J", "IniTitulo": "Reduz as propinas no ensino superior público e alarga as bolsas de estudo",
+  "IniLinkTexto": "https://www.parlamento.pt/ActividadeParlamentar/Paginas/DetalheIniciativa.aspx?BID=1",
+  "IniAutorGruposParlamentares": [{"GP": "PS"}],
+  "IniEventos": [{"Fase": "Entrada", "DataFase": "2026-09-01"}, {"Fase": "Admissão", "DataFase": "2026-09-02"}]},
+ {"IniId": "2", "IniLeg": "XVII", "IniSel": "2", "IniNr": "58", "IniTipo": "P", "IniTitulo": "Aprova o regime da garantia pública ao crédito à habitação para jovens até 35 anos",
+  "IniLinkTexto": "https://www.parlamento.pt/ActividadeParlamentar/Paginas/DetalheIniciativa.aspx?BID=2",
+  "IniAutorOutros": {"nome": "Governo", "sigla": "GOV"},
+  "IniEventos": [{"Fase": "Votação na generalidade", "DataFase": "2026-09-03"}]}
+]}

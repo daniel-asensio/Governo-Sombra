@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}O Estado{% endblock %}
+{% block conteudo %}
+<h1>A administração pública, ramo a ramo</h1>
+<p class="sub">Órgãos de soberania, Governo, ministérios, secretarias de Estado e os organismos que dependem de cada um. O número indica itens recolhidos.</p>
+{% macro no(e, nivel) -%}
+<li class="no nivel-{{ nivel }} tipo-{{ e.tipo }}">
+  <a href="/estado/{{ e.id }}"><strong>{{ e.nome }}</strong>{% if e.sigla %} <span class="sigla">{{ e.sigla }}</span>{% endif %}</a>
+  <span class="tipo">{{ TIPOS_ENTIDADE.get(e.tipo, e.tipo) }}</span>
+  {% if e.titular %}<span class="titular">{{ e.titular }}</span>{% endif %}
+  {% if contagens.get(e.id) %}<span class="n">{{ contagens[e.id] }}</span>{% endif %}
+  {% if e.filhos %}<ul>{% for f in e.filhos %}{{ no(f, nivel + 1) }}{% endfor %}</ul>{% endif %}
+</li>
+{%- endmacro %}
+<ul class="arvore">
+{% for e in raizes %}{{ no(e, 0) }}{% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,1104 @@
+# Estrutura da administração pública portuguesa.
+# Fonte de partida: XXV Governo Constitucional (tomou posse em Junho de 2025).
+# Os titulares e a orgânica mudam: confirmar em https://www.portugal.gov.pt e
+# actualizar este ficheiro. Correr `python -m governo_sombra seed` depois de editar.
+#
+# Campos: id (slug único), nome, sigla, tipo, url, titular, descricao, filhos.
+# Tipos: orgao_soberania, governo, ministerio, secretaria_estado, direcao_geral,
+#        instituto, regulador, autoridade, empresa_publica, tribunal, inspecao,
+#        forca_seguranca, outro
+meta:
+  legislatura: XVII
+  governo: XXV Governo Constitucional
+  dados_a: "2026-09-03"
+  aviso: "Titulares e orgânica devem ser confirmados nas fontes oficiais."
+
+entidades:
+  # ------------------------------------------------------------------
+  # ÓRGÃOS DE SOBERANIA E ENTIDADES INDEPENDENTES
+  # ------------------------------------------------------------------
+  - id: presidencia-republica
+    nome: Presidência da República
+    sigla: PR
+    tipo: orgao_soberania
+    url: https://www.presidencia.pt
+    titular: António José Seguro
+    descricao: Presidente da República. Promulga ou veta diplomas, nomeia o Primeiro-Ministro, pode dissolver a Assembleia.
+
+  - id: assembleia-republica
+    nome: Assembleia da República
+    sigla: AR
+    tipo: orgao_soberania
+    url: https://www.parlamento.pt
+    titular: José Pedro Aguiar-Branco (Presidente da AR)
+    descricao: Parlamento. Aprova leis, o Orçamento do Estado e fiscaliza o Governo. Comissões parlamentares, plenário, petições.
+    filhos:
+      - id: ar-comissoes
+        nome: Comissões Parlamentares
+        tipo: outro
+        url: https://www.parlamento.pt/sites/COM/Paginas/default.aspx
+        descricao: Comissões permanentes e eventuais onde a maior parte do trabalho legislativo acontece antes do plenário.
+      - id: ar-peticoes
+        nome: Petições à Assembleia da República
+        tipo: outro
+        url: https://www.parlamento.pt/Peticoes
+        descricao: Petições públicas que os cidadãos podem subscrever e acompanhar.
+
+  - id: tribunal-constitucional
+    nome: Tribunal Constitucional
+    sigla: TC
+    tipo: tribunal
+    url: https://www.tribunalconstitucional.pt
+    descricao: Fiscaliza a constitucionalidade das leis. Acórdãos publicados no DR.
+
+  - id: supremo-tribunal-justica
+    nome: Supremo Tribunal de Justiça
+    sigla: STJ
+    tipo: tribunal
+    url: https://www.stj.pt
+  - id: supremo-tribunal-administrativo
+    nome: Supremo Tribunal Administrativo
+    sigla: STA
+    tipo: tribunal
+    url: https://www.stadministrativo.pt
+  - id: tribunal-contas
+    nome: Tribunal de Contas
+    sigla: TdC
+    tipo: tribunal
+    url: https://www.tcontas.pt
+    descricao: Fiscaliza a legalidade das despesas públicas. Relatórios de auditoria e pareceres sobre a Conta Geral do Estado.
+  - id: procuradoria-geral-republica
+    nome: Procuradoria-Geral da República
+    sigla: PGR
+    tipo: outro
+    url: https://www.ministeriopublico.pt
+  - id: provedor-justica
+    nome: Provedor de Justiça
+    tipo: outro
+    url: https://www.provedor-jus.pt
+    descricao: Recebe queixas de cidadãos contra a administração pública. Relatórios e recomendações.
+  - id: cnpd
+    nome: Comissão Nacional de Proteção de Dados
+    sigla: CNPD
+    tipo: autoridade
+    url: https://www.cnpd.pt
+  - id: cne
+    nome: Comissão Nacional de Eleições
+    sigla: CNE
+    tipo: autoridade
+    url: https://www.cne.pt
+  - id: erc
+    nome: Entidade Reguladora para a Comunicação Social
+    sigla: ERC
+    tipo: regulador
+    url: https://www.erc.pt
+  - id: cada
+    nome: Comissão de Acesso aos Documentos Administrativos
+    sigla: CADA
+    tipo: autoridade
+    url: https://www.cada.pt
+  - id: banco-portugal
+    nome: Banco de Portugal
+    sigla: BdP
+    tipo: regulador
+    url: https://www.bportugal.pt
+    descricao: Banco central. Supervisão bancária, estatísticas, boletim económico, avisos sobre crédito.
+  - id: conselho-financas-publicas
+    nome: Conselho das Finanças Públicas
+    sigla: CFP
+    tipo: outro
+    url: https://www.cfp.pt
+    descricao: Entidade independente que avalia as previsões orçamentais e a sustentabilidade das contas públicas.
+
+  # ------------------------------------------------------------------
+  # GOVERNO
+  # ------------------------------------------------------------------
+  - id: governo
+    nome: Governo de Portugal
+    sigla: XXV GC
+    tipo: governo
+    url: https://www.portugal.gov.pt
+    titular: Luís Montenegro (Primeiro-Ministro)
+    descricao: XXV Governo Constitucional. Conselho de Ministros reúne normalmente às quintas-feiras; o comunicado sai no mesmo dia.
+    filhos:
+      - id: primeiro-ministro
+        nome: Primeiro-Ministro
+        sigla: PM
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/primeiro-ministro
+        titular: Luís Montenegro
+        filhos:
+          - id: ceger
+            nome: Centro de Gestão da Rede Informática do Governo
+            sigla: CEGER
+            tipo: outro
+            url: https://www.ceger.gov.pt
+
+      - id: ministro-estado-negocios-estrangeiros
+        nome: Ministério dos Negócios Estrangeiros
+        sigla: MNE
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/negocios-estrangeiros
+        titular: Paulo Rangel (Ministro de Estado e dos Negócios Estrangeiros)
+        areas: [politica_externa, comunidades, assuntos_europeus, cooperacao]
+        filhos:
+          - id: se-assuntos-europeus
+            nome: Secretaria de Estado dos Assuntos Europeus
+            tipo: secretaria_estado
+          - id: se-comunidades-portuguesas
+            nome: Secretaria de Estado das Comunidades Portuguesas
+            tipo: secretaria_estado
+          - id: se-negocios-estrangeiros-cooperacao
+            nome: Secretaria de Estado dos Negócios Estrangeiros e da Cooperação
+            tipo: secretaria_estado
+          - id: camoes
+            nome: Camões - Instituto da Cooperação e da Língua
+            sigla: Camões, I.P.
+            tipo: instituto
+            url: https://www.instituto-camoes.pt
+          - id: dgacp
+            nome: Direção-Geral dos Assuntos Consulares e das Comunidades Portuguesas
+            sigla: DGACCP
+            tipo: direcao_geral
+            url: https://portaldascomunidades.mne.gov.pt
+          - id: aicep
+            nome: AICEP Portugal Global
+            sigla: AICEP
+            tipo: empresa_publica
+            url: https://www.portugalglobal.pt
+
+      - id: ministerio-financas
+        nome: Ministério das Finanças
+        sigla: MF
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/financas
+        titular: Joaquim Miranda Sarmento (Ministro de Estado e das Finanças)
+        areas: [impostos, orcamento, divida, funcao_publica_remuneracoes]
+        filhos:
+          - id: se-orcamento
+            nome: Secretaria de Estado do Orçamento
+            tipo: secretaria_estado
+          - id: se-assuntos-fiscais
+            nome: Secretaria de Estado dos Assuntos Fiscais
+            tipo: secretaria_estado
+            descricao: IRS, IVA, IRC, IMI, IUC, benefícios fiscais, calendário fiscal.
+          - id: se-tesouro-financas
+            nome: Secretaria de Estado do Tesouro e Finanças
+            tipo: secretaria_estado
+          - id: autoridade-tributaria
+            nome: Autoridade Tributária e Aduaneira
+            sigla: AT
+            tipo: autoridade
+            url: https://www.portaldasfinancas.gov.pt
+            descricao: Impostos, alfândegas, Portal das Finanças, ofícios-circulados, prazos de entrega.
+          - id: dgo
+            nome: Direção-Geral do Orçamento
+            sigla: DGO
+            tipo: direcao_geral
+            url: https://www.dgo.gov.pt
+          - id: igcp
+            nome: Agência de Gestão da Tesouraria e da Dívida Pública
+            sigla: IGCP
+            tipo: empresa_publica
+            url: https://www.igcp.pt
+            descricao: Certificados de Aforro, Certificados do Tesouro, leilões de dívida.
+          - id: gee
+            nome: Gabinete de Estratégia e Estudos (economia e finanças)
+            sigla: GEE
+            tipo: outro
+            url: https://www.gee.gov.pt
+          - id: igf
+            nome: Inspeção-Geral de Finanças
+            sigla: IGF
+            tipo: inspecao
+            url: https://www.igf.gov.pt
+          - id: cga
+            nome: Caixa Geral de Aposentações
+            sigla: CGA
+            tipo: instituto
+            url: https://www.cga.pt
+            descricao: Pensões dos funcionários públicos inscritos até 2005.
+          - id: adse
+            nome: ADSE - Instituto de Proteção e Assistência na Doença
+            sigla: ADSE
+            tipo: instituto
+            url: https://www.adse.pt
+          - id: espap
+            nome: Entidade de Serviços Partilhados da Administração Pública
+            sigla: eSPap
+            tipo: instituto
+            url: https://www.espap.gov.pt
+          - id: parpublica
+            nome: Parpública
+            tipo: empresa_publica
+            url: https://www.parpublica.pt
+          - id: cmvm
+            nome: Comissão do Mercado de Valores Mobiliários
+            sigla: CMVM
+            tipo: regulador
+            url: https://www.cmvm.pt
+          - id: asf
+            nome: Autoridade de Supervisão de Seguros e Fundos de Pensões
+            sigla: ASF
+            tipo: regulador
+            url: https://www.asf.com.pt
+
+      - id: ministerio-presidencia
+        nome: Ministério da Presidência
+        sigla: MP
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/presidencia
+        titular: António Leitão Amaro (Ministro da Presidência)
+        areas: [conselho_ministros, digital, igualdade, migracoes]
+        filhos:
+          - id: se-presidencia-conselho-ministros
+            nome: Secretaria de Estado da Presidência do Conselho de Ministros
+            tipo: secretaria_estado
+          - id: se-digitalizacao-modernizacao
+            nome: Secretaria de Estado da Digitalização e Modernização Administrativa
+            tipo: secretaria_estado
+          - id: ama
+            nome: Agência para a Modernização Administrativa
+            sigla: AMA
+            tipo: instituto
+            url: https://www.ama.gov.pt
+            descricao: Chave Móvel Digital, gov.pt, Lojas de Cidadão, ePortugal.
+          - id: aima
+            nome: Agência para a Integração, Migrações e Asilo
+            sigla: AIMA
+            tipo: instituto
+            url: https://aima.gov.pt
+            descricao: Autorizações de residência, nacionalidade, asilo.
+          - id: cig
+            nome: Comissão para a Cidadania e a Igualdade de Género
+            sigla: CIG
+            tipo: outro
+            url: https://www.cig.gov.pt
+          - id: inr
+            nome: Instituto Nacional para a Reabilitação
+            sigla: INR
+            tipo: instituto
+            url: https://www.inr.pt
+          - id: ine
+            nome: Instituto Nacional de Estatística
+            sigla: INE
+            tipo: instituto
+            url: https://www.ine.pt
+            descricao: Estatísticas oficiais. Destaques diários sobre inflação, emprego, PIB, habitação.
+          - id: cns
+            nome: Centro Nacional de Cibersegurança
+            sigla: CNCS
+            tipo: outro
+            url: https://www.cncs.gov.pt
+
+      - id: ministerio-assuntos-parlamentares
+        nome: Ministério dos Assuntos Parlamentares
+        sigla: MAP
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/assuntos-parlamentares
+        titular: Carlos Abreu Amorim (Ministro dos Assuntos Parlamentares)
+        areas: [relacao_parlamento, comunicacao_social]
+        filhos:
+          - id: se-assuntos-parlamentares
+            nome: Secretaria de Estado dos Assuntos Parlamentares
+            tipo: secretaria_estado
+          - id: gmcs
+            nome: Gabinete para os Meios de Comunicação Social
+            sigla: GMCS
+            tipo: outro
+            url: https://www.gmcs.pt
+          - id: rtp
+            nome: RTP - Rádio e Televisão de Portugal
+            sigla: RTP
+            tipo: empresa_publica
+            url: https://www.rtp.pt
+          - id: lusa
+            nome: Agência Lusa
+            tipo: empresa_publica
+            url: https://www.lusa.pt
+
+      - id: ministerio-reforma-estado
+        nome: Ministério da Reforma do Estado
+        sigla: MRE
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/reforma-do-estado
+        titular: Gonçalo Matias (Ministro Adjunto e da Reforma do Estado)
+        areas: [administracao_publica, simplificacao, funcao_publica]
+        filhos:
+          - id: se-administracao-publica
+            nome: Secretaria de Estado da Administração Pública
+            tipo: secretaria_estado
+            descricao: Carreiras, concursos, tabela remuneratória, teletrabalho na função pública.
+          - id: se-reforma-estado
+            nome: Secretaria de Estado da Reforma do Estado
+            tipo: secretaria_estado
+          - id: dgaep
+            nome: Direção-Geral da Administração e do Emprego Público
+            sigla: DGAEP
+            tipo: direcao_geral
+            url: https://www.dgaep.gov.pt
+          - id: ina
+            nome: INA - Instituto Nacional de Administração
+            sigla: INA
+            tipo: instituto
+            url: https://www.ina.pt
+          - id: bep
+            nome: Bolsa de Emprego Público
+            sigla: BEP
+            tipo: outro
+            url: https://www.bep.gov.pt
+            descricao: Concursos e mobilidade na administração pública.
+
+      - id: ministerio-defesa
+        nome: Ministério da Defesa Nacional
+        sigla: MDN
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/defesa-nacional
+        titular: Nuno Melo (Ministro da Defesa Nacional)
+        areas: [forcas_armadas, defesa, industria_defesa]
+        filhos:
+          - id: se-defesa-nacional
+            nome: Secretaria de Estado da Defesa Nacional
+            tipo: secretaria_estado
+          - id: emgfa
+            nome: Estado-Maior-General das Forças Armadas
+            sigla: EMGFA
+            tipo: outro
+            url: https://www.emgfa.pt
+          - id: dgrdn
+            nome: Direção-Geral de Recursos da Defesa Nacional
+            sigla: DGRDN
+            tipo: direcao_geral
+            url: https://www.defesa.gov.pt
+          - id: iasfa
+            nome: Instituto de Ação Social das Forças Armadas
+            sigla: IASFA
+            tipo: instituto
+            url: https://www.iasfa.pt
+          - id: idn
+            nome: Instituto da Defesa Nacional
+            sigla: IDN
+            tipo: instituto
+            url: https://www.idn.gov.pt
+
+      - id: ministerio-administracao-interna
+        nome: Ministério da Administração Interna
+        sigla: MAI
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/administracao-interna
+        titular: Maria Lúcia Amaral (Ministra da Administração Interna)
+        areas: [seguranca, policia, protecao_civil, transito, eleicoes, imigracao_fronteiras]
+        filhos:
+          - id: se-administracao-interna
+            nome: Secretaria de Estado da Administração Interna
+            tipo: secretaria_estado
+          - id: se-protecao-civil
+            nome: Secretaria de Estado da Proteção Civil
+            tipo: secretaria_estado
+          - id: psp
+            nome: Polícia de Segurança Pública
+            sigla: PSP
+            tipo: forca_seguranca
+            url: https://www.psp.pt
+          - id: gnr
+            nome: Guarda Nacional Republicana
+            sigla: GNR
+            tipo: forca_seguranca
+            url: https://www.gnr.pt
+          - id: anepc
+            nome: Autoridade Nacional de Emergência e Proteção Civil
+            sigla: ANEPC
+            tipo: autoridade
+            url: https://prociv.gov.pt
+            descricao: Avisos de incêndios, alertas meteorológicos, estado de alerta.
+          - id: ansr
+            nome: Autoridade Nacional de Segurança Rodoviária
+            sigla: ANSR
+            tipo: autoridade
+            url: https://www.ansr.pt
+            descricao: Código da Estrada, contraordenações, campanhas.
+          - id: sgmai
+            nome: Secretaria-Geral do MAI (administração eleitoral)
+            sigla: SGMAI
+            tipo: outro
+            url: https://www.sg.mai.gov.pt
+            descricao: Organiza os actos eleitorais, recenseamento.
+          - id: igai
+            nome: Inspeção-Geral da Administração Interna
+            sigla: IGAI
+            tipo: inspecao
+            url: https://www.igai.pt
+          - id: uco
+            nome: Unidade de Coordenação de Fronteiras e Estrangeiros
+            sigla: UCFE
+            tipo: outro
+
+      - id: ministerio-justica
+        nome: Ministério da Justiça
+        sigla: MJ
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/justica
+        titular: Rita Alarcão Júdice (Ministra da Justiça)
+        areas: [tribunais, registos, notariado, prisoes, nacionalidade, investigacao_criminal]
+        filhos:
+          - id: se-justica
+            nome: Secretaria de Estado da Justiça
+            tipo: secretaria_estado
+          - id: se-adjunta-justica
+            nome: Secretaria de Estado Adjunta e da Justiça
+            tipo: secretaria_estado
+          - id: irn
+            nome: Instituto dos Registos e do Notariado
+            sigla: IRN
+            tipo: instituto
+            url: https://irn.justica.gov.pt
+            descricao: Cartão de Cidadão, registo civil, predial, comercial, nacionalidade.
+          - id: dgaj
+            nome: Direção-Geral da Administração da Justiça
+            sigla: DGAJ
+            tipo: direcao_geral
+            url: https://dgaj.justica.gov.pt
+          - id: dgpj
+            nome: Direção-Geral da Política de Justiça
+            sigla: DGPJ
+            tipo: direcao_geral
+            url: https://dgpj.justica.gov.pt
+          - id: dgrsp
+            nome: Direção-Geral de Reinserção e Serviços Prisionais
+            sigla: DGRSP
+            tipo: direcao_geral
+            url: https://dgrsp.justica.gov.pt
+          - id: pj
+            nome: Polícia Judiciária
+            sigla: PJ
+            tipo: forca_seguranca
+            url: https://www.policiajudiciaria.pt
+          - id: igfej
+            nome: Instituto de Gestão Financeira e Equipamentos da Justiça
+            sigla: IGFEJ
+            tipo: instituto
+            url: https://igfej.justica.gov.pt
+          - id: inpi
+            nome: Instituto Nacional da Propriedade Industrial
+            sigla: INPI
+            tipo: instituto
+            url: https://inpi.justica.gov.pt
+          - id: inmlcf
+            nome: Instituto Nacional de Medicina Legal e Ciências Forenses
+            sigla: INMLCF
+            tipo: instituto
+            url: https://www.inmlcf.mj.pt
+          - id: csm
+            nome: Conselho Superior da Magistratura
+            sigla: CSM
+            tipo: outro
+            url: https://www.csm.org.pt
+
+      - id: ministerio-economia-coesao
+        nome: Ministério da Economia e da Coesão Territorial
+        sigla: MECT
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/economia-e-coesao-territorial
+        titular: Manuel Castro Almeida (Ministro da Economia e da Coesão Territorial)
+        areas: [empresas, turismo, comercio, consumidor, fundos_europeus, desenvolvimento_regional, autarquias]
+        filhos:
+          - id: se-economia
+            nome: Secretaria de Estado da Economia
+            tipo: secretaria_estado
+          - id: se-turismo-comercio-servicos
+            nome: Secretaria de Estado do Turismo, Comércio e Serviços
+            tipo: secretaria_estado
+          - id: se-desenvolvimento-regional
+            nome: Secretaria de Estado do Desenvolvimento Regional
+            tipo: secretaria_estado
+          - id: se-administracao-local
+            nome: Secretaria de Estado da Administração Local e Ordenamento do Território
+            tipo: secretaria_estado
+          - id: iapmei
+            nome: IAPMEI - Agência para a Competitividade e Inovação
+            sigla: IAPMEI
+            tipo: instituto
+            url: https://www.iapmei.pt
+            descricao: Apoios e incentivos a PME, avisos de candidatura.
+          - id: turismo-portugal
+            nome: Turismo de Portugal
+            sigla: TP
+            tipo: instituto
+            url: https://www.turismodeportugal.pt
+          - id: dgc
+            nome: Direção-Geral do Consumidor
+            sigla: DGC
+            tipo: direcao_geral
+            url: https://www.consumidor.gov.pt
+          - id: asae
+            nome: Autoridade de Segurança Alimentar e Económica
+            sigla: ASAE
+            tipo: autoridade
+            url: https://www.asae.gov.pt
+          - id: adc
+            nome: Autoridade da Concorrência
+            sigla: AdC
+            tipo: regulador
+            url: https://www.concorrencia.pt
+          - id: adcoesao
+            nome: Agência para o Desenvolvimento e Coesão
+            sigla: AD&C
+            tipo: instituto
+            url: https://www.adcoesao.pt
+            descricao: Portugal 2030, PRR, fundos europeus.
+          - id: recuperar-portugal
+            nome: Estrutura de Missão Recuperar Portugal (PRR)
+            sigla: PRR
+            tipo: outro
+            url: https://recuperarportugal.gov.pt
+          - id: dgal
+            nome: Direção-Geral das Autarquias Locais
+            sigla: DGAL
+            tipo: direcao_geral
+            url: https://www.portalautarquico.dgal.gov.pt
+          - id: ccdr-norte
+            nome: CCDR Norte
+            tipo: outro
+            url: https://www.ccdr-n.pt
+          - id: ccdr-centro
+            nome: CCDR Centro
+            tipo: outro
+            url: https://www.ccdrc.pt
+          - id: ccdr-lvt
+            nome: CCDR Lisboa e Vale do Tejo
+            tipo: outro
+            url: https://www.ccdr-lvt.pt
+          - id: ccdr-alentejo
+            nome: CCDR Alentejo
+            tipo: outro
+            url: https://www.ccdr-a.gov.pt
+          - id: ccdr-algarve
+            nome: CCDR Algarve
+            tipo: outro
+            url: https://www.ccdr-alg.pt
+          - id: dgae
+            nome: Direção-Geral das Atividades Económicas
+            sigla: DGAE
+            tipo: direcao_geral
+            url: https://www.dgae.gov.pt
+
+      - id: ministerio-educacao-ciencia-inovacao
+        nome: Ministério da Educação, Ciência e Inovação
+        sigla: MECI
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/educacao-ciencia-e-inovacao
+        titular: Fernando Alexandre (Ministro da Educação, Ciência e Inovação)
+        areas: [escolas, professores, ensino_superior, ciencia, inovacao]
+        filhos:
+          - id: se-educacao
+            nome: Secretaria de Estado da Educação
+            tipo: secretaria_estado
+          - id: se-ensino-superior
+            nome: Secretaria de Estado do Ensino Superior
+            tipo: secretaria_estado
+          - id: se-ciencia
+            nome: Secretaria de Estado da Ciência
+            tipo: secretaria_estado
+          - id: se-inovacao
+            nome: Secretaria de Estado da Inovação
+            tipo: secretaria_estado
+          - id: dgeste
+            nome: Direção-Geral dos Estabelecimentos Escolares
+            sigla: DGEstE
+            tipo: direcao_geral
+            url: https://www.dgeste.mec.pt
+          - id: dge
+            nome: Direção-Geral da Educação
+            sigla: DGE
+            tipo: direcao_geral
+            url: https://www.dge.mec.pt
+          - id: dgae-educacao
+            nome: Direção-Geral da Administração Escolar
+            sigla: DGAE
+            tipo: direcao_geral
+            url: https://www.dgae.medu.pt
+            descricao: Concursos de professores, colocações, mobilidade.
+          - id: iave
+            nome: Instituto de Avaliação Educativa
+            sigla: IAVE
+            tipo: instituto
+            url: https://iave.pt
+            descricao: Exames nacionais e provas de aferição.
+          - id: dges
+            nome: Direção-Geral do Ensino Superior
+            sigla: DGES
+            tipo: direcao_geral
+            url: https://www.dges.gov.pt
+            descricao: Acesso ao ensino superior, bolsas, propinas.
+          - id: fct
+            nome: Fundação para a Ciência e a Tecnologia
+            sigla: FCT
+            tipo: instituto
+            url: https://www.fct.pt
+            descricao: Bolsas e concursos de investigação.
+          - id: a3es
+            nome: Agência de Avaliação e Acreditação do Ensino Superior
+            sigla: A3ES
+            tipo: outro
+            url: https://www.a3es.pt
+          - id: ani
+            nome: Agência Nacional de Inovação
+            sigla: ANI
+            tipo: outro
+            url: https://www.ani.pt
+          - id: igec
+            nome: Inspeção-Geral da Educação e Ciência
+            sigla: IGEC
+            tipo: inspecao
+            url: https://www.igec.mec.pt
+          - id: anqep
+            nome: Agência Nacional para a Qualificação e o Ensino Profissional
+            sigla: ANQEP
+            tipo: instituto
+            url: https://www.anqep.gov.pt
+
+      - id: ministerio-saude
+        nome: Ministério da Saúde
+        sigla: MS
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/saude
+        titular: Ana Paula Martins (Ministra da Saúde)
+        areas: [sns, hospitais, centros_saude, medicamentos, saude_publica]
+        filhos:
+          - id: se-saude
+            nome: Secretaria de Estado da Saúde
+            tipo: secretaria_estado
+          - id: se-gestao-saude
+            nome: Secretaria de Estado da Gestão da Saúde
+            tipo: secretaria_estado
+          - id: sns
+            nome: Serviço Nacional de Saúde
+            sigla: SNS
+            tipo: outro
+            url: https://www.sns.gov.pt
+            descricao: Portal do SNS, SNS 24, notícias de hospitais e ULS.
+          - id: dgs
+            nome: Direção-Geral da Saúde
+            sigla: DGS
+            tipo: direcao_geral
+            url: https://www.dgs.pt
+            descricao: Normas clínicas, vacinação, alertas de saúde pública.
+          - id: de-sns
+            nome: Direção Executiva do SNS
+            sigla: DE-SNS
+            tipo: outro
+            url: https://www.sns.gov.pt/direcao-executiva-do-sns
+          - id: acss
+            nome: Administração Central do Sistema de Saúde
+            sigla: ACSS
+            tipo: instituto
+            url: https://www.acss.min-saude.pt
+            descricao: Contratualização, circulares normativas, tabelas de preços do SNS.
+          - id: infarmed
+            nome: INFARMED - Autoridade Nacional do Medicamento
+            sigla: INFARMED
+            tipo: autoridade
+            url: https://www.infarmed.pt
+            descricao: Medicamentos, preços, comparticipações, alertas de segurança e rupturas.
+          - id: inem
+            nome: Instituto Nacional de Emergência Médica
+            sigla: INEM
+            tipo: instituto
+            url: https://www.inem.pt
+          - id: insa
+            nome: Instituto Nacional de Saúde Doutor Ricardo Jorge
+            sigla: INSA
+            tipo: instituto
+            url: https://www.insa.min-saude.pt
+          - id: ers
+            nome: Entidade Reguladora da Saúde
+            sigla: ERS
+            tipo: regulador
+            url: https://www.ers.pt
+          - id: spms
+            nome: Serviços Partilhados do Ministério da Saúde
+            sigla: SPMS
+            tipo: empresa_publica
+            url: https://www.spms.min-saude.pt
+          - id: igas
+            nome: Inspeção-Geral das Atividades em Saúde
+            sigla: IGAS
+            tipo: inspecao
+            url: https://www.igas.min-saude.pt
+          - id: ipst
+            nome: Instituto Português do Sangue e da Transplantação
+            sigla: IPST
+            tipo: instituto
+            url: https://www.ipst.pt
+
+      - id: ministerio-infraestruturas-habitacao
+        nome: Ministério das Infraestruturas e Habitação
+        sigla: MIH
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/infraestruturas-e-habitacao
+        titular: Miguel Pinto Luz (Ministro das Infraestruturas e Habitação)
+        areas: [habitacao, arrendamento, transportes, estradas, ferrovia, aeroportos, comunicacoes, correios]
+        filhos:
+          - id: se-infraestruturas
+            nome: Secretaria de Estado das Infraestruturas
+            tipo: secretaria_estado
+          - id: se-mobilidade
+            nome: Secretaria de Estado da Mobilidade
+            tipo: secretaria_estado
+          - id: se-habitacao
+            nome: Secretaria de Estado da Habitação
+            tipo: secretaria_estado
+            descricao: Arrendamento, apoios à renda, Porta 65, habitação pública.
+          - id: ihru
+            nome: Instituto da Habitação e da Reabilitação Urbana
+            sigla: IHRU
+            tipo: instituto
+            url: https://www.ihru.pt
+            descricao: Porta 65, apoio à renda, 1.º Direito, Portal da Habitação.
+          - id: imt
+            nome: Instituto da Mobilidade e dos Transportes
+            sigla: IMT
+            tipo: instituto
+            url: https://www.imt-ip.pt
+            descricao: Carta de condução, inspeções, transportes, TVDE.
+          - id: infraestruturas-portugal
+            nome: Infraestruturas de Portugal
+            sigla: IP
+            tipo: empresa_publica
+            url: https://www.infraestruturasdeportugal.pt
+          - id: cp
+            nome: CP - Comboios de Portugal
+            sigla: CP
+            tipo: empresa_publica
+            url: https://www.cp.pt
+          - id: anac
+            nome: Autoridade Nacional da Aviação Civil
+            sigla: ANAC
+            tipo: regulador
+            url: https://www.anac.pt
+          - id: anacom
+            nome: Autoridade Nacional de Comunicações
+            sigla: ANACOM
+            tipo: regulador
+            url: https://www.anacom.pt
+            descricao: Telecomunicações, preços, fidelizações, correios, tarifário social.
+          - id: amt
+            nome: Autoridade da Mobilidade e dos Transportes
+            sigla: AMT
+            tipo: regulador
+            url: https://www.amt-autoridade.pt
+          - id: lnec
+            nome: Laboratório Nacional de Engenharia Civil
+            sigla: LNEC
+            tipo: instituto
+            url: https://www.lnec.pt
+          - id: ctt
+            nome: CTT (serviço postal universal, concessionária)
+            sigla: CTT
+            tipo: outro
+            url: https://www.ctt.pt
+          - id: ana
+            nome: ANA Aeroportos (concessionária)
+            sigla: ANA
+            tipo: outro
+            url: https://www.ana.pt
+          - id: tap
+            nome: TAP Air Portugal
+            sigla: TAP
+            tipo: empresa_publica
+            url: https://www.tap.pt
+
+      - id: ministerio-trabalho-solidariedade-seguranca-social
+        nome: Ministério do Trabalho, Solidariedade e Segurança Social
+        sigla: MTSSS
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/trabalho-solidariedade-e-seguranca-social
+        titular: Maria do Rosário Palma Ramalho (Ministra do Trabalho, Solidariedade e Segurança Social)
+        areas: [trabalho, emprego, seguranca_social, pensoes, apoios_sociais, deficiencia, familia]
+        filhos:
+          - id: se-trabalho
+            nome: Secretaria de Estado do Trabalho
+            tipo: secretaria_estado
+            descricao: Código do Trabalho, salário mínimo, contratação colectiva.
+          - id: se-seguranca-social
+            nome: Secretaria de Estado da Segurança Social
+            tipo: secretaria_estado
+            descricao: Pensões, prestações, contribuições.
+          - id: se-acao-social-inclusao
+            nome: Secretaria de Estado da Ação Social e Inclusão
+            tipo: secretaria_estado
+          - id: seguranca-social
+            nome: Segurança Social (Instituto da Segurança Social)
+            sigla: ISS
+            tipo: instituto
+            url: https://www.seg-social.pt
+            descricao: Prestações, pensões, abono de família, subsídio de desemprego, Segurança Social Direta.
+          - id: iefp
+            nome: Instituto do Emprego e Formação Profissional
+            sigla: IEFP
+            tipo: instituto
+            url: https://www.iefp.pt
+            descricao: Ofertas de emprego, formação, apoios à contratação, estágios.
+          - id: act
+            nome: Autoridade para as Condições do Trabalho
+            sigla: ACT
+            tipo: autoridade
+            url: https://www.act.gov.pt
+          - id: dgert
+            nome: Direção-Geral do Emprego e das Relações de Trabalho
+            sigla: DGERT
+            tipo: direcao_geral
+            url: https://www.dgert.gov.pt
+            descricao: Contratos colectivos, portarias de extensão, boletim do trabalho e emprego.
+          - id: igfss
+            nome: Instituto de Gestão Financeira da Segurança Social
+            sigla: IGFSS
+            tipo: instituto
+            url: https://www.seg-social.pt/igfss
+          - id: cases
+            nome: Cooperativa António Sérgio para a Economia Social
+            sigla: CASES
+            tipo: outro
+            url: https://www.cases.pt
+          - id: gep
+            nome: Gabinete de Estratégia e Planeamento (trabalho)
+            sigla: GEP
+            tipo: outro
+            url: https://www.gep.mtsss.gov.pt
+
+      - id: ministerio-ambiente-energia
+        nome: Ministério do Ambiente e Energia
+        sigla: MAE
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/ambiente-e-energia
+        titular: Maria da Graça Carvalho (Ministra do Ambiente e Energia)
+        areas: [energia, electricidade, gas, agua, residuos, clima, conservacao_natureza, ordenamento]
+        filhos:
+          - id: se-energia
+            nome: Secretaria de Estado da Energia
+            tipo: secretaria_estado
+            descricao: Tarifas de electricidade e gás, renováveis, autoconsumo.
+          - id: se-ambiente
+            nome: Secretaria de Estado do Ambiente
+            tipo: secretaria_estado
+          - id: apa
+            nome: Agência Portuguesa do Ambiente
+            sigla: APA
+            tipo: instituto
+            url: https://apambiente.pt
+            descricao: Licenciamento ambiental, qualidade do ar, recursos hídricos, consultas públicas de AIA.
+          - id: icnf
+            nome: Instituto da Conservação da Natureza e das Florestas
+            sigla: ICNF
+            tipo: instituto
+            url: https://www.icnf.pt
+            descricao: Florestas, incêndios, áreas protegidas, caça.
+          - id: dgeg
+            nome: Direção-Geral de Energia e Geologia
+            sigla: DGEG
+            tipo: direcao_geral
+            url: https://www.dgeg.gov.pt
+            descricao: Preços de combustíveis, licenciamento energético, certificação.
+          - id: erse
+            nome: Entidade Reguladora dos Serviços Energéticos
+            sigla: ERSE
+            tipo: regulador
+            url: https://www.erse.pt
+            descricao: Tarifas reguladas de electricidade e gás, tarifa social.
+          - id: ersar
+            nome: Entidade Reguladora dos Serviços de Águas e Resíduos
+            sigla: ERSAR
+            tipo: regulador
+            url: https://www.ersar.pt
+          - id: ipma
+            nome: Instituto Português do Mar e da Atmosfera
+            sigla: IPMA
+            tipo: instituto
+            url: https://www.ipma.pt
+            descricao: Meteorologia, avisos, sismos.
+          - id: adene
+            nome: ADENE - Agência para a Energia
+            sigla: ADENE
+            tipo: outro
+            url: https://www.adene.pt
+          - id: fundo-ambiental
+            nome: Fundo Ambiental
+            tipo: outro
+            url: https://www.fundoambiental.pt
+            descricao: Apoios a veículos eléctricos, eficiência energética, janelas, painéis.
+          - id: igamaot
+            nome: Inspeção-Geral da Agricultura, do Mar, do Ambiente e do Ordenamento do Território
+            sigla: IGAMAOT
+            tipo: inspecao
+            url: https://www.igamaot.gov.pt
+          - id: dgt
+            nome: Direção-Geral do Território
+            sigla: DGT
+            tipo: direcao_geral
+            url: https://www.dgterritorio.gov.pt
+
+      - id: ministerio-cultura-juventude-desporto
+        nome: Ministério da Cultura, Juventude e Desporto
+        sigla: MCJD
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/cultura-juventude-e-desporto
+        titular: Margarida Balseiro Lopes (Ministra da Cultura, Juventude e Desporto)
+        areas: [cultura, patrimonio, juventude, desporto, associativismo]
+        filhos:
+          - id: se-cultura
+            nome: Secretaria de Estado da Cultura
+            tipo: secretaria_estado
+          - id: se-juventude
+            nome: Secretaria de Estado da Juventude
+            tipo: secretaria_estado
+          - id: se-desporto
+            nome: Secretaria de Estado do Desporto
+            tipo: secretaria_estado
+          - id: dgartes
+            nome: Direção-Geral das Artes
+            sigla: DGARTES
+            tipo: direcao_geral
+            url: https://www.dgartes.gov.pt
+          - id: patrimonio-cultural
+            nome: Património Cultural, I.P.
+            tipo: instituto
+            url: https://www.patrimoniocultural.gov.pt
+          - id: museus-monumentos
+            nome: Museus e Monumentos de Portugal
+            sigla: MMP
+            tipo: empresa_publica
+            url: https://museusemonumentos.pt
+          - id: dglab
+            nome: Direção-Geral do Livro, dos Arquivos e das Bibliotecas
+            sigla: DGLAB
+            tipo: direcao_geral
+            url: https://dglab.gov.pt
+          - id: ica
+            nome: Instituto do Cinema e do Audiovisual
+            sigla: ICA
+            tipo: instituto
+            url: https://www.ica-ip.pt
+          - id: ipdj
+            nome: Instituto Português do Desporto e Juventude
+            sigla: IPDJ
+            tipo: instituto
+            url: https://ipdj.gov.pt
+            descricao: Programas para jovens, associativismo, apoios ao desporto.
+          - id: bnp
+            nome: Biblioteca Nacional de Portugal
+            sigla: BNP
+            tipo: outro
+            url: https://www.bnportugal.gov.pt
+
+      - id: ministerio-agricultura-mar
+        nome: Ministério da Agricultura e Mar
+        sigla: MAM
+        tipo: ministerio
+        url: https://www.portugal.gov.pt/pt/gc25/area-de-governo/agricultura-e-mar
+        titular: José Manuel Fernandes (Ministro da Agricultura e Mar)
+        areas: [agricultura, pescas, mar, alimentacao, florestas_producao, veterinaria]
+        filhos:
+          - id: se-agricultura
+            nome: Secretaria de Estado da Agricultura
+            tipo: secretaria_estado
+          - id: se-pescas-mar
+            nome: Secretaria de Estado das Pescas e do Mar
+            tipo: secretaria_estado
+          - id: se-desenvolvimento-rural
+            nome: Secretaria de Estado do Desenvolvimento Rural
+            tipo: secretaria_estado
+          - id: ifap
+            nome: Instituto de Financiamento da Agricultura e Pescas
+            sigla: IFAP
+            tipo: instituto
+            url: https://www.ifap.pt
+            descricao: Pagamentos da PAC, candidaturas, pedidos únicos.
+          - id: dgav
+            nome: Direção-Geral de Alimentação e Veterinária
+            sigla: DGAV
+            tipo: direcao_geral
+            url: https://www.dgav.pt
+            descricao: Saúde animal, animais de companhia, segurança alimentar, fitofarmacêuticos.
+          - id: dgadr
+            nome: Direção-Geral de Agricultura e Desenvolvimento Rural
+            sigla: DGADR
+            tipo: direcao_geral
+            url: https://www.dgadr.gov.pt
+          - id: dgrm
+            nome: Direção-Geral de Recursos Naturais, Segurança e Serviços Marítimos
+            sigla: DGRM
+            tipo: direcao_geral
+            url: https://www.dgrm.pt
+          - id: gpp
+            nome: Gabinete de Planeamento, Políticas e Administração Geral
+            sigla: GPP
+            tipo: outro
+            url: https://www.gpp.pt
+          - id: iniav
+            nome: Instituto Nacional de Investigação Agrária e Veterinária
+            sigla: INIAV
+            tipo: instituto
+            url: https://www.iniav.pt
+          - id: docapesca
+            nome: Docapesca
+            tipo: empresa_publica
+            url: https://www.docapesca.pt
+          - id: drap
+            nome: Direções Regionais de Agricultura e Pescas
+            sigla: DRAP
+            tipo: outro
+
+  # ------------------------------------------------------------------
+  # REGIÕES AUTÓNOMAS E PODER LOCAL
+  # ------------------------------------------------------------------
+  - id: governo-regional-acores
+    nome: Governo Regional dos Açores
+    tipo: governo
+    url: https://portal.azores.gov.pt
+  - id: governo-regional-madeira
+    nome: Governo Regional da Madeira
+    tipo: governo
+    url: https://www.madeira.gov.pt
+  - id: anmp
+    nome: Associação Nacional de Municípios Portugueses
+    sigla: ANMP
+    tipo: outro
+    url: https://www.anmp.pt
+  - id: anafre
+    nome: Associação Nacional de Freguesias
+    sigla: ANAFRE
+    tipo: outro
+    url: https://anafre.pt
+
+  # ------------------------------------------------------------------
+  # PUBLICAÇÕES OFICIAIS E PARTICIPAÇÃO
+  # ------------------------------------------------------------------
+  - id: diario-republica
+    nome: Diário da República
+    sigla: DR
+    tipo: outro
+    url: https://diariodarepublica.pt
+    descricao: Jornal oficial. Tudo o que é lei, decreto-lei, portaria, despacho ou aviso passa por aqui. 1.ª série (legislação) e 2.ª série (actos administrativos, concursos, nomeações).
+  - id: consultalex
+    nome: ConsultaLEX (consultas públicas do Governo)
+    tipo: outro
+    url: https://www.consultalex.gov.pt
+    descricao: Consultas públicas sobre projectos de diploma. Qualquer cidadão pode enviar contributos.
+  - id: participa
+    nome: Participa.gov.pt
+    tipo: outro
+    url: https://participa.gov.pt
+    descricao: Participação pública em planos, avaliações de impacte ambiental e ordenamento.
+  - id: dados-gov
+    nome: dados.gov.pt (portal de dados abertos)
+    tipo: outro
+    url: https://dados.gov.pt
+  - id: base-gov
+    nome: BASE - contratos públicos
+    tipo: outro
+    url: https://www.base.gov.pt
+    descricao: Todos os contratos públicos celebrados. Útil para ver quem contrata o quê e por quanto.
+  - id: portal-transparencia
+    nome: Portal da Transparência do SNS
+    tipo: outro
+    url: https://transparencia.sns.gov.pt

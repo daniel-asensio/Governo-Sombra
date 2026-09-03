@@ -1,0 +1,90 @@
+# Elenco do governo sombra. Cada ministro sombra está ligado a uma entidade
+# (ministério ou órgão) e tem um "programa" de prioridades. O nome pode ser o
+# teu, o de um amigo, ou uma persona. Edita à vontade e corre `seed`.
+gabinete:
+  - entidade: primeiro-ministro
+    nome: Primeiro-Ministro Sombra
+    cargo: Primeiro-Ministro sombra
+    bio: Coordena o governo sombra e responde ao Conselho de Ministros semanal.
+    prioridades:
+      - Transparência total nas decisões do Conselho de Ministros
+      - Avaliação de impacto obrigatória para cada diploma
+  - entidade: ministerio-financas
+    nome: Ministro das Finanças Sombra
+    cargo: Ministro das Finanças sombra
+    prioridades:
+      - Simplificar o IRS e reduzir a carga sobre o trabalho
+      - Publicar execução orçamental mensal legível para cidadãos
+  - entidade: ministerio-saude
+    nome: Ministro da Saúde Sombra
+    cargo: Ministro da Saúde sombra
+    prioridades:
+      - Médico de família para todos os utentes
+      - Listas de espera públicas e actualizadas em tempo real
+  - entidade: ministerio-infraestruturas-habitacao
+    nome: Ministro da Habitação Sombra
+    cargo: Ministro das Infraestruturas e Habitação sombra
+    prioridades:
+      - Habitação pública a preços acessíveis
+      - Ferrovia como alternativa real ao automóvel
+  - entidade: ministerio-educacao-ciencia-inovacao
+    nome: Ministro da Educação Sombra
+    cargo: Ministro da Educação, Ciência e Inovação sombra
+    prioridades:
+      - Colocação de professores antes do início do ano lectivo
+      - Redução da burocracia nas escolas
+  - entidade: ministerio-trabalho-solidariedade-seguranca-social
+    nome: Ministro do Trabalho Sombra
+    cargo: Ministro do Trabalho, Solidariedade e Segurança Social sombra
+    prioridades:
+      - Segurança Social sustentável e transparente
+      - Combate à precariedade
+  - entidade: ministerio-ambiente-energia
+    nome: Ministro do Ambiente Sombra
+    cargo: Ministro do Ambiente e Energia sombra
+    prioridades:
+      - Facturas de energia mais baixas através das renováveis
+      - Prevenção de incêndios com gestão activa da floresta
+  - entidade: ministerio-justica
+    nome: Ministro da Justiça Sombra
+    cargo: Ministro da Justiça sombra
+    prioridades:
+      - Justiça mais rápida e digital
+  - entidade: ministerio-administracao-interna
+    nome: Ministro da Administração Interna Sombra
+    cargo: Ministro da Administração Interna sombra
+    prioridades:
+      - Valorização das forças de segurança
+  - entidade: ministerio-economia-coesao
+    nome: Ministro da Economia Sombra
+    cargo: Ministro da Economia e da Coesão Territorial sombra
+    prioridades:
+      - Menos burocracia para PME
+      - Execução dos fundos europeus com resultados visíveis
+  - entidade: ministerio-reforma-estado
+    nome: Ministro da Reforma do Estado Sombra
+    cargo: Ministro da Reforma do Estado sombra
+    prioridades:
+      - Serviços públicos digitais que funcionem à primeira
+  - entidade: ministerio-agricultura-mar
+    nome: Ministro da Agricultura Sombra
+    cargo: Ministro da Agricultura e Mar sombra
+    prioridades:
+      - Pagamentos da PAC a tempo e horas
+  - entidade: ministerio-cultura-juventude-desporto
+    nome: Ministro da Cultura Sombra
+    cargo: Ministro da Cultura, Juventude e Desporto sombra
+    prioridades:
+      - Apoios às artes previsíveis e plurianuais
+  - entidade: ministerio-defesa
+    nome: Ministro da Defesa Sombra
+    cargo: Ministro da Defesa Nacional sombra
+  - entidade: ministro-estado-negocios-estrangeiros
+    nome: Ministro dos Negócios Estrangeiros Sombra
+    cargo: Ministro dos Negócios Estrangeiros sombra
+  - entidade: ministerio-presidencia
+    nome: Ministro da Presidência Sombra
+    cargo: Ministro da Presidência sombra
+  - entidade: ministerio-assuntos-parlamentares
+    nome: Ministro dos Assuntos Parlamentares Sombra
+    cargo: Ministro dos Assuntos Parlamentares sombra

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cartao, paginacao %}
+{% block titulo %}Feed{% endblock %}
+{% block conteudo %}
+<h1>Feed {% if filtros.q %}· «{{ filtros.q }}»{% endif %} <small>{{ total }} itens</small></h1>
+<form class="filtros" method="get" action="/feed">
+  <input type="search" name="q" placeholder="Pesquisa" value="{{ filtros.q }}">
+  <select name="ministerio">
+    <option value="">Todos os ministérios/órgãos</option>
+    {% for m in ministerios %}<option value="{{ m.id }}" {% if filtros.ministerio == m.id %}selected{% endif %}>{{ m.nome }}</option>{% endfor %}
+  </select>
+  <select name="tipo">
+    <option value="">Todos os tipos</option>
+    {% for k, v in TIPOS_DOCUMENTO.items() %}<option value="{{ k }}" {% if filtros.tipo == k %}selected{% endif %}>{{ v }}</option>{% endfor %}
+  </select>
+  <select name="perfil">
+    <option value="">Todos os perfis</option>
+    {% for p in perfis_cfg %}<option value="{{ p.id }}" {% if filtros.perfil == p.id %}selected{% endif %}>{{ p.nome }}</option>{% endfor %}
+  </select>
+  <select name="regiao">
+    <option value="">Todas as regiões</option>
+    {% for r in regioes_cfg %}<option value="{{ r.id }}" {% if filtros.regiao == r.id %}selected{% endif %}>{{ r.nome }}</option>{% endfor %}
+  </select>
+  <input type="date" name="desde" value="{{ filtros.desde or '' }}" title="desde">
+  <input type="date" name="ate" value="{{ filtros.ate or '' }}" title="até">
+  <select name="ordem">
+    <option value="data" {% if filtros.ordem == 'data' %}selected{% endif %}>Mais recentes</option>
+    <option value="relevancia" {% if filtros.ordem == 'relevancia' %}selected{% endif %}>Mais relevantes</option>
+  </select>
+  <label><input type="checkbox" name="guardados" value="true" {% if filtros.guardados %}checked{% endif %}> guardados</label>
+  {% if filtros.entidade %}<input type="hidden" name="entidade" value="{{ filtros.entidade }}">{% endif %}
+  <button>Filtrar</button>
+  <a href="/feed" class="limpar">limpar</a>
+</form>
+
+{% set perfis_map = {} %}{% for p in perfis_cfg %}{% set _ = perfis_map.update({p.id: p}) %}{% endfor %}
+<div class="lista">
+{% for i in itens %}{{ cartao(i, perfis_map) }}{% else %}<p class="vazio">Nenhum item corresponde aos filtros.</p>{% endfor %}
+</div>
+{% set base = "/feed?q=" ~ filtros.q ~ "&ministerio=" ~ filtros.ministerio ~ "&tipo=" ~ filtros.tipo ~ "&perfil=" ~ filtros.perfil ~ "&regiao=" ~ filtros.regiao ~ "&ordem=" ~ filtros.ordem ~ ("&desde=" ~ filtros.desde if filtros.desde else "") ~ ("&ate=" ~ filtros.ate if filtros.ate else "") ~ ("&entidade=" ~ filtros.entidade if filtros.entidade else "") ~ ("&guardados=true" if filtros.guardados else "") %}
+{{ paginacao(pagina, total, 50, base) }}
+{% endblock %}

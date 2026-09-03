@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import posicao_bloco %}
+{% block titulo %}Governo sombra{% endblock %}
+{% block conteudo %}
+<h1>Governo sombra</h1>
+<p class="sub">Um gabinete paralelo que comenta o que o Governo faz, ministério a ministério, e propõe alternativas. {{ balanco.total }} posições publicadas{% if balanco.media is not none %} · avaliação média do Governo: {{ balanco.media }} (de -2 a +2){% endif %}.</p>
+<div class="gabinete">
+{% for m in gabinete %}
+  <a class="ministro" href="/sombra/{{ m.entidade_id }}">
+    <strong>{{ m.nome }}</strong>
+    <span>{{ m.cargo }}</span>
+    <small>face a {{ m.entidade.titular or m.entidade.nome }}</small>
+  </a>
+{% endfor %}
+</div>
+<div class="accoes-item"><a class="botao" href="/sombra/posicao/nova">Nova posição</a></div>
+<h2>Últimas posições</h2>
+{% for p in posicoes %}{{ posicao_bloco(p) }}{% else %}<p class="vazio">Ainda não há posições. Abre um item do feed e carrega em "Comentar como governo sombra".</p>{% endfor %}
+{% endblock %}
