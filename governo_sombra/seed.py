@@ -111,9 +111,13 @@ def limpar_fontes_duplicadas(s: Session) -> int:
     entre as automáticas, a da entidade mais acima na hierarquia."""
     from .models import Item
 
+    import json
+
     grupos: dict[str, list[Fonte]] = {}
     for f in s.scalars(select(Fonte)):
-        grupos.setdefault(f.url.rstrip("/").lower(), []).append(f)
+        cfg = {k: v for k, v in (f.config or {}).items() if k not in ("diagnostico", "nota")}
+        chave = f.url.rstrip("/").lower() + "|" + json.dumps(cfg, sort_keys=True)
+        grupos.setdefault(chave, []).append(f)
     removidas = 0
     for lista in grupos.values():
         if len(lista) < 2:
