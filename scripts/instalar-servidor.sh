@@ -31,6 +31,14 @@ while true; do
   echo "A senha deve ter pelo menos 6 caracteres."
 done
 
+# Memória de reserva em disco: evita que a máquina fique a arrastar-se quando a RAM enche.
+if [ ! -f /swapfile ] && [ "$(id -u)" != "0" ] && command -v sudo >/dev/null 2>&1; then
+  echo "-- a criar 2 GB de swap"
+  sudo fallocate -l 2G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
+  sudo chmod 600 /swapfile && sudo mkswap /swapfile >/dev/null && sudo swapon /swapfile
+  grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
+fi
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "-- a instalar o Docker"
   curl -fsSL https://get.docker.com | sh

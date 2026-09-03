@@ -9,9 +9,22 @@ from .base import ItemBruto, interpretar_data, limpar_texto, obter
 
 
 class AdaptadorRSS:
-    """Feeds RSS/Atom."""
+    """Feeds RSS/Atom: leitor incremental frugal; feedparser como reserva para feeds estranhos."""
 
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
+        from .rss_leve import ler_feed_de_bytes, ler_feed_incremental
+
+        maximo = int(config.get("maximo", 300))
+        try:
+            itens = ler_feed_de_bytes(corpo, maximo=maximo) if corpo is not None else ler_feed_incremental(url, maximo=maximo)
+        except ValueError:
+            itens = []
+        if itens:
+            tipo = config.get("tipo_documento")
+            if tipo:
+                for i in itens:
+                    i.tipo_documento = tipo
+            return itens
         corpo = corpo if corpo is not None else obter(url)
         feed = feedparser.parse(corpo)
         if feed.bozo and not feed.entries:
