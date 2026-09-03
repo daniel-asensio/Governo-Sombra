@@ -109,10 +109,11 @@ def limpar_fontes_duplicadas(s: Session) -> int:
     """Quando várias fontes apontam para o mesmo URL (p. ex. feeds descobertos
     automaticamente), fica só uma: de preferência a definida em fontes.yaml e,
     entre as automáticas, a da entidade mais acima na hierarquia."""
-    from .models import Item
-
     import json
 
+    from .models import Item
+
+    removidas = 0
     grupos: dict[str, list[Fonte]] = {}
     for f in list(s.scalars(select(Fonte))):
         if f.id.endswith("-rss-auto") and "comment" in f.url.lower():
