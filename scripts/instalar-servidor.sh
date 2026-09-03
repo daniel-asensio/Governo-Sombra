@@ -64,4 +64,4 @@ else
   sudo docker compose up -d --build
   echo; echo "Pronto. Abre http://$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}'):8000"
 fi
-echo "Actualizar mais tarde: cd $PASTA && git pull && sudo docker compose up -d --build"
+echo "Actualizar mais tarde: bash $PASTA/scripts/actualizar.sh"

@@ -93,3 +93,31 @@ def test_manifest_e_senha(cliente, monkeypatch):
     assert cliente.get("/saude").status_code == 200
     assert cliente.get("/", auth=("eu", "segredo")).status_code == 200
     assert cliente.get("/", auth=("eu", "errada")).status_code == 401
+
+
+def test_diagnostico_e_alterar_url(cliente, bd_com_dados):
+    from governo_sombra.ingest.diagnostico import diagnosticar
+    from governo_sombra.models import Fonte
+
+    r = cliente.post("/fontes/sns-noticias/url", data={"url": "http://127.0.0.1:9/x", "tipo": "html"}, follow_redirects=False)
+    assert r.status_code == 303
+    with bd_com_dados.sessao_ctx() as s:
+        f = s.get(Fonte, "sns-noticias")
+        assert f.tipo == "html" and f.url == "http://127.0.0.1:9/x"
+        d = diagnosticar(f)
+        assert d["estado"] == "erro"
+    assert cliente.post("/fontes/sns-noticias/diagnosticar", follow_redirects=False).status_code == 303
+    assert cliente.get("/fontes").status_code == 200
+
+
+def test_html_heuristico():
+    from governo_sombra.ingest.html import AdaptadorHTML
+
+    html = """<html><body><nav><a href='/'>Início</a></nav><div class='xyz'>
+    <a href='/n/1'>Governo aprova novo regime de apoio ao arrendamento jovem</a> <span>02-09-2026</span>
+    <a href='/n/2'>Abertas candidaturas ao programa de bolsas de investigação</a>
+    <a href='https://outro.site/x'>Ligação externa com um título comprido também</a>
+    <a href='/n/3'>Ver mais</a></div></body></html>""".encode("utf-8")
+    itens = AdaptadorHTML().recolher("https://exemplo.gov.pt/noticias", {"selectores": {"item": ".nada"}}, corpo=html)
+    assert [i.url for i in itens] == ["https://exemplo.gov.pt/n/1", "https://exemplo.gov.pt/n/2"]
+    assert itens[0].publicado_em.year == 2026

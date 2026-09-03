@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
@@ -66,9 +66,60 @@ def extrair_itens(html: bytes | str, url_base: str, config: dict) -> list[ItemBr
     return itens
 
 
+PALAVRAS_NAVEGACAO = {"início", "inicio", "home", "contactos", "contacto", "pesquisa", "pesquisar", "entrar", "login", "mapa do site", "acessibilidade", "privacidade", "cookies", "termos", "ver mais", "saber mais", "ler mais", "seguinte", "anterior", "página", "pagina", "menu", "voltar", "topo", "partilhar", "imprimir", "english", "português"}
+
+
+def extrair_ligacoes_heuristico(html: bytes | str, url_base: str, config: dict) -> list[ItemBruto]:
+    """Quando os selectores não apanham nada: todas as ligações do mesmo site cujo
+    texto pareça um título (comprido, com espaços, sem ser navegação)."""
+    soup = BeautifulSoup(html, "lxml")
+    for tag in soup(["script", "style", "nav", "header", "footer", "aside", "form"]):
+        tag.decompose()
+    dominio = urlparse(url_base).netloc.lower().removeprefix("www.")
+    itens: list[ItemBruto] = []
+    vistos: set[str] = set()
+    minimo = int(config.get("titulo_minimo", 25))
+    for a in soup.select("a[href]"):
+        texto = limpar_texto(a.get_text(" "), 600)
+        if not texto or len(texto) < minimo or " " not in texto:
+            continue
+        if texto.lower() in PALAVRAS_NAVEGACAO or texto.lower().startswith(("ver ", "saber ", "ler ")):
+            continue
+        href = urljoin(url_base, a["href"])
+        if href.startswith(("mailto:", "javascript:", "tel:")):
+            continue
+        dom = urlparse(href).netloc.lower().removeprefix("www.")
+        if dom and dom != dominio and not dom.endswith("." + dominio):
+            continue
+        if href.rstrip("/") == url_base.rstrip("/") or href in vistos:
+            continue
+        vistos.add(href)
+        pai = a.find_parent(["li", "article", "div", "tr"])
+        data_txt = None
+        resumo = None
+        if pai is not None:
+            t_el = pai.find("time")
+            if t_el is not None:
+                data_txt = t_el.get("datetime") or t_el.get_text(" ")
+            else:
+                data_txt = pai.get_text(" ")[:200]
+            p_el = pai.find("p")
+            if p_el is not None:
+                resumo = limpar_texto(p_el.get_text(" "))
+                if resumo == texto:
+                    resumo = None
+        itens.append(ItemBruto(titulo=texto, url=href, guid=href, resumo=resumo, publicado_em=interpretar_data(data_txt), tipo_documento=config.get("tipo_documento"), extra={"modo": "heuristico"}))
+        if len(itens) >= int(config.get("maximo", 60)):
+            break
+    return itens
+
+
 class AdaptadorHTML:
-    """Raspagem genérica configurável por selectores CSS."""
+    """Raspagem genérica configurável por selectores CSS, com modo heurístico de reserva."""
 
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
         corpo = corpo if corpo is not None else obter(url)
-        return extrair_itens(corpo, url, config)
+        itens = extrair_itens(corpo, url, config)
+        if not itens and config.get("heuristico", True):
+            itens = extrair_ligacoes_heuristico(corpo, url, config)
+        return itens

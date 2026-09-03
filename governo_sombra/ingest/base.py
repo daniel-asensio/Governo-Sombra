@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -39,19 +40,39 @@ class ErroFonte(RuntimeError):
     pass
 
 
-def obter(url: str, *, fixture: Path | None = None) -> bytes:
-    """Descarrega o URL (ou lê um ficheiro local em modo fixture)."""
+CABECALHOS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 " + definicoes.user_agent,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/rss+xml;q=0.9,application/json;q=0.8,*/*;q=0.7",
+    "Accept-Language": "pt-PT,pt;q=0.9,en;q=0.5",
+}
+
+
+def obter(url: str, *, fixture: Path | None = None, verificar_tls: bool = True) -> bytes:
+    """Descarrega o URL (ou lê um ficheiro local em modo fixture).
+
+    Muitos sites do Estado têm cadeias de certificados incompletas; se a
+    verificação TLS falhar, tenta uma segunda vez sem verificação (o conteúdo
+    é público e só de leitura, o risco é baixo e fica registado no log).
+    """
     if fixture is not None:
         return Path(fixture).read_bytes()
-    try:
-        with httpx.Client(
-            headers={"User-Agent": definicoes.user_agent, "Accept-Language": "pt-PT,pt;q=0.9"},
-            timeout=definicoes.http_timeout,
-            follow_redirects=True,
-        ) as c:
+
+    def _pedir(verify: bool) -> bytes:
+        with httpx.Client(headers=CABECALHOS, timeout=definicoes.http_timeout, follow_redirects=True, verify=verify) as c:
             r = c.get(url)
             r.raise_for_status()
             return r.content
+
+    try:
+        return _pedir(verificar_tls)
+    except httpx.ConnectError as e:
+        if verificar_tls and "CERTIFICATE_VERIFY_FAILED" in str(e):
+            logging.getLogger("governo_sombra.ingest").warning("%s: certificado inválido, a ler sem verificação TLS", url)
+            try:
+                return _pedir(False)
+            except httpx.HTTPError as e2:
+                raise ErroFonte(f"{type(e2).__name__}: {e2}") from e2
+        raise ErroFonte(f"{type(e).__name__}: {e}") from e
     except httpx.HTTPError as e:
         raise ErroFonte(f"{type(e).__name__}: {e}") from e
 

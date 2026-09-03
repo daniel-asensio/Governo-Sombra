@@ -53,8 +53,13 @@ def _primeiro(d: dict, *chaves):
 
 class AdaptadorIniciativasAR:
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
+        if corpo is None and "DadosAbertos.aspx" in url:
+            raise ValueError("Falta configurar: substitui o URL pelo do ficheiro JSON 'Iniciativas' da legislatura corrente, em parlamento.pt › Cidadania › Dados Abertos")
         corpo = corpo if corpo is not None else obter(url)
-        dados = json.loads(corpo)
+        try:
+            dados = json.loads(corpo)
+        except ValueError:
+            raise ValueError("A resposta não é JSON. Confirma que o URL é o do ficheiro de Iniciativas (JSON) e não a página web") from None
         itens = []
         for ini in _lista_iniciativas(dados):
             if not isinstance(ini, dict):

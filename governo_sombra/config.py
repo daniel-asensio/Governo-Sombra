@@ -16,7 +16,7 @@ class Definicoes(BaseSettings):
     scheduler: bool = False
     ingest_interval_min: int = 60
     user_agent: str = "GovernoSombra/0.1 (+https://github.com/daniel-asensio/Governo-Sombra)"
-    http_timeout: float = 30.0
+    http_timeout: float = 60.0
     ia_modelo: str = "claude-opus-5"
     smtp_host: str | None = None
     smtp_port: int = 587
