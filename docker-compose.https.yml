@@ -1,0 +1,25 @@
+# Acrescenta HTTPS automático com Caddy. Precisa de um domínio a apontar para o
+# servidor (um subdomínio gratuito do DuckDNS serve) e das portas 80 e 443 abertas.
+#   GS_DOMINIO=o-meu.duckdns.org docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
+services:
+  governo-sombra:
+    ports: !reset []
+    expose:
+      - "8000"
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      GS_DOMINIO: ${GS_DOMINIO:?define GS_DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    depends_on:
+      - governo-sombra
+volumes:
+  caddy_dados:
+  caddy_config:

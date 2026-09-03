@@ -1,6 +1,7 @@
-# Para um servidor próprio, VPS ou Raspberry Pi:
-#   docker compose up -d
+# Para um servidor próprio, VPS, Raspberry Pi ou VM gratuita da Oracle Cloud:
+#   GS_PASSWORD='senha' docker compose up -d        (ou põe GS_PASSWORD num ficheiro .env)
 # Depois abre http://<ip-do-servidor>:8000
+# Com HTTPS e domínio: ver docker-compose.https.yml ou scripts/instalar-servidor.sh
 services:
   governo-sombra:
     build: .

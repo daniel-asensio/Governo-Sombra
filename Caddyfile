@@ -1,0 +1,4 @@
+{$GS_DOMINIO} {
+	encode gzip
+	reverse_proxy governo-sombra:8000
+}

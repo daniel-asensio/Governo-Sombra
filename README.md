@@ -65,11 +65,15 @@ fly open
 
 **Railway**: cria um projecto a partir do repositório GitHub, adiciona um volume montado em `/data`, define a variável `GS_PASSWORD` e faz deploy. O `railway.json` já indica o Dockerfile.
 
-**Servidor próprio, VPS ou Raspberry Pi** (com Docker):
+**Grátis: VM "Always Free" da Oracle Cloud, um VPS ou um Raspberry Pi.** Cria a máquina (Ubuntu), abre as portas 80 e 443 na consola, aponta um subdomínio gratuito do DuckDNS para o IP, entra por SSH e corre:
 
 ```bash
-GS_PASSWORD='uma-senha-forte' docker compose up -d
+curl -fsSL https://raw.githubusercontent.com/daniel-asensio/Governo-Sombra/main/scripts/instalar-servidor.sh | bash
 ```
+
+O script instala o Docker, descarrega o código, pede o domínio e a senha, e arranca com HTTPS automático (Caddy). Sem domínio, corre `GS_PASSWORD='senha' docker compose up -d` e abre `http://<ip>:8000`.
+
+**Grátis em casa, só para ti:** um PC velho ou Raspberry Pi com `docker compose up -d` e o Tailscale (gratuito para uso pessoal) instalado em todos os aparelhos. Acedes de qualquer lado sem abrir portas no router.
 
 Em qualquer dos casos a recolha corre sozinha todas as horas (`GS_SCHEDULER=1` no Dockerfile) e o resumo diário é gerado às 07:30. Os dados ficam no volume `/data`.
 
