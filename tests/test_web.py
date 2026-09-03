@@ -82,3 +82,14 @@ def test_digest(bd_com_dados):
         texto, _ = gerar_digest(s, dia=date(2026, 9, 4), guardar=False)
     assert texto.startswith("# Governo Sombra")
     assert "Por ministério" in texto
+
+
+def test_manifest_e_senha(cliente, monkeypatch):
+    from governo_sombra.config import definicoes
+
+    assert cliente.get("/manifest.json").json()["name"] == "Governo Sombra"
+    monkeypatch.setattr(definicoes, "password", "segredo")
+    assert cliente.get("/").status_code == 401
+    assert cliente.get("/saude").status_code == 200
+    assert cliente.get("/", auth=("eu", "segredo")).status_code == 200
+    assert cliente.get("/", auth=("eu", "errada")).status_code == 401

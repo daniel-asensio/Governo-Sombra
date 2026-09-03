@@ -94,7 +94,10 @@ def cmd_serve(args):
     import uvicorn
 
     criar_esquema()
-    uvicorn.run("governo_sombra.web.app:app", host=args.host or definicoes.host, port=args.port or definicoes.port, reload=args.reload)
+    import os
+
+    porta = args.port or int(os.environ.get("PORT", 0) or 0) or definicoes.port
+    uvicorn.run("governo_sombra.web.app:app", host=args.host or definicoes.host, port=porta, reload=args.reload, proxy_headers=True, forwarded_allow_ips="*")
 
 
 def cmd_estado(_):

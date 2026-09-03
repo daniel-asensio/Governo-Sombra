@@ -93,3 +93,13 @@ button[disabled] { opacity: .5; cursor: wait; }
 .inline { display: flex; gap: .4rem; margin-top: .3rem; }
 details summary { cursor: pointer; font-size: .85rem; color: var(--muted); }
 pre { background: var(--bg); padding: .6rem; overflow-x: auto; font-size: .8rem; }
+@media (max-width: 640px) {
+  .topo { padding: .5rem .8rem; gap: .5rem; }
+  .topo nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .topo nav a { white-space: nowrap; }
+  .pesquisa { width: 100%; margin-left: 0; } .pesquisa input { width: 100%; }
+  .conteudo { padding: .8rem; }
+  .grelha { grid-template-columns: 1fr; }
+  .filtros select, .filtros input { width: 100%; }
+  .tabela { display: block; overflow-x: auto; }
+}

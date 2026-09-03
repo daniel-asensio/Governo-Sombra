@@ -30,6 +30,7 @@ from ..models import (
     Posicao,
 )
 from . import queries
+from .auth import AutenticacaoBasica
 
 log = logging.getLogger("governo_sombra.web")
 DIR = Path(__file__).parent
@@ -118,7 +119,26 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Governo Sombra", version=__version__, lifespan=lifespan)
+app.add_middleware(AutenticacaoBasica)
 app.mount("/static", StaticFiles(directory=str(DIR / "static")), name="static")
+
+
+@app.get("/manifest.json")
+def manifest():
+    return JSONResponse(
+        {
+            "name": "Governo Sombra",
+            "short_name": "GovSombra",
+            "description": "O que se passa na administração pública portuguesa e o que te afecta",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#f6f5f1",
+            "theme_color": "#0a5c4a",
+            "lang": "pt-PT",
+            "icons": [{"src": "/static/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}],
+        },
+        media_type="application/manifest+json",
+    )
 
 
 def render(request: Request, nome: str, **ctx):

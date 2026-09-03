@@ -25,6 +25,7 @@ class Definicoes(BaseSettings):
     email_destino: str | None = None
     host: str = "127.0.0.1"
     port: int = 8000
+    password: str | None = None  # GS_PASSWORD: protege a aplicação quando está na internet
 
 
 definicoes = Definicoes()

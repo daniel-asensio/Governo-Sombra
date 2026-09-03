@@ -49,6 +49,30 @@ Recolha periódica: define `GS_SCHEDULER=1` (e opcionalmente `GS_INGEST_INTERVAL
 
 Configuração em `.env` (ver `.env.example`).
 
+## Pôr online (PC, tablet e telemóvel)
+
+A aplicação é um site: corre num servidor e abre-se em qualquer aparelho no browser. No telemóvel e tablet, "Adicionar ao ecrã principal" instala-a como aplicação. Define sempre `GS_PASSWORD` quando estiver na internet.
+
+**Fly.io** (cerca de 2 a 5 EUR por mês, servidores em Madrid):
+
+```bash
+fly launch --copy-config --no-deploy   # cria a app a partir de fly.toml
+fly volumes create dados --size 1 --region mad
+fly secrets set GS_PASSWORD='uma-senha-forte'
+fly deploy
+fly open
+```
+
+**Railway**: cria um projecto a partir do repositório GitHub, adiciona um volume montado em `/data`, define a variável `GS_PASSWORD` e faz deploy. O `railway.json` já indica o Dockerfile.
+
+**Servidor próprio, VPS ou Raspberry Pi** (com Docker):
+
+```bash
+GS_PASSWORD='uma-senha-forte' docker compose up -d
+```
+
+Em qualquer dos casos a recolha corre sozinha todas as horas (`GS_SCHEDULER=1` no Dockerfile) e o resumo diário é gerado às 07:30. Os dados ficam no volume `/data`.
+
 ## Sobre as fontes
 
 Os URLs em `data/fontes.yaml` foram escritos a partir do conhecimento dos sites oficiais mas **não foram todos verificados a partir deste projecto** (o ambiente onde foi construído não tinha acesso à rede). Cada fonte mostra na página **Fontes** se já recolheu com sucesso ("verificada") ou o erro que deu. Para corrigir:

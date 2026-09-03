@@ -1,0 +1,18 @@
+# Para um servidor próprio, VPS ou Raspberry Pi:
+#   docker compose up -d
+# Depois abre http://<ip-do-servidor>:8000
+services:
+  governo-sombra:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - dados:/data
+    environment:
+      GS_PASSWORD: ${GS_PASSWORD:-muda-esta-senha}
+      GS_INGEST_INTERVAL_MIN: "60"
+      # ANTHROPIC_API_KEY: ...
+      # GS_SMTP_HOST: ...
+    restart: unless-stopped
+volumes:
+  dados:
