@@ -20,13 +20,14 @@ def engine():
             caminho = url.removeprefix("sqlite:///")
             if caminho and caminho != ":memory:":
                 Path(caminho).parent.mkdir(parents=True, exist_ok=True)
-        _engine = create_engine(url, future=True, connect_args={"check_same_thread": False} if url.startswith("sqlite") else {})
+        _engine = create_engine(url, future=True, connect_args={"check_same_thread": False, "timeout": 60} if url.startswith("sqlite") else {})
         if url.startswith("sqlite"):
 
             @event.listens_for(_engine, "connect")
             def _pragmas(dbapi_conn, _):
                 cur = dbapi_conn.cursor()
                 cur.execute("PRAGMA journal_mode=WAL")
+                cur.execute("PRAGMA busy_timeout=60000")
                 cur.execute("PRAGMA foreign_keys=ON")
                 cur.close()
 

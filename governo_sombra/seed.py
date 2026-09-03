@@ -58,6 +58,11 @@ def carregar_fontes(s: Session, dir_dados: Path = DIR_DADOS) -> int:
         fonte.prioridade = int(f.get("prioridade", 5))
         if fonte.activa is None:
             fonte.activa = f.get("activa", True)
+        elif f.get("activa") is False and not fonte.ultimo_sucesso:
+            # O YAML diz que o URL está por confirmar e esta instalação nunca conseguiu lê-lo.
+            fonte.activa = False
+        if f.get("nota"):
+            fonte.config = {**(fonte.config or {}), "nota": f["nota"]}
         s.add(fonte)
         n += 1
     s.flush()
@@ -100,6 +105,29 @@ def carregar_governo_sombra(s: Session, dir_dados: Path = DIR_DADOS) -> int:
     return n
 
 
+def limpar_fontes_duplicadas(s: Session) -> int:
+    """Quando várias fontes apontam para o mesmo URL (p. ex. feeds descobertos
+    automaticamente), fica só uma: de preferência a definida em fontes.yaml e,
+    entre as automáticas, a da entidade mais acima na hierarquia."""
+    from .models import Item
+
+    grupos: dict[str, list[Fonte]] = {}
+    for f in s.scalars(select(Fonte)):
+        grupos.setdefault(f.url.rstrip("/").lower(), []).append(f)
+    removidas = 0
+    for lista in grupos.values():
+        if len(lista) < 2:
+            continue
+        lista.sort(key=lambda f: (f.id.endswith("-rss-auto"), len(f.entidade.caminho()) if f.entidade else 9, f.id))
+        for extra in lista[1:]:
+            for item in s.scalars(select(Item).where(Item.fonte_id == extra.id)):
+                s.delete(item)
+            s.delete(extra)
+            removidas += 1
+    s.flush()
+    return removidas
+
+
 def garantir_perfil(s: Session) -> Perfil:
     p = s.get(Perfil, 1)
     if p is None:
@@ -128,6 +156,7 @@ def seed_tudo(s: Session, dir_dados: Path = DIR_DADOS) -> dict[str, int]:
         "calendario": carregar_calendario(s, dir_dados),
         "governo_sombra": carregar_governo_sombra(s, dir_dados),
     }
+    r["fontes_duplicadas_removidas"] = limpar_fontes_duplicadas(s)
     garantir_perfil(s)
     garantir_alerta_exemplo(s)
     s.commit()

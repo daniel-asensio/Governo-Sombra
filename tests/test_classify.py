@@ -40,6 +40,7 @@ def test_alertas_etiquetam(bd):
 
     with bd.sessao_ctx() as s:
         s.add(Alerta(nome="Gripe", palavras=["vacinação contra a gripe"], entidades=[], tipos=[]))
+        s.get(Fonte, "sns-noticias").activa = True
         s.commit()
         recolher_tudo(s, apenas=["sns-noticias"], dir_fixtures=FIXTURES)
         it = s.scalar(select(Item).where(Item.titulo.like("Vacinação%")))

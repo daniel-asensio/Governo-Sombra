@@ -60,6 +60,7 @@ def test_fonte_com_erro_regista_erro(bd):
     with bd.sessao_ctx() as s:
         f = s.get(Fonte, "sns-noticias")
         f.url = "http://127.0.0.1:9/nao-existe"
+        f.activa = True
         s.commit()
         ex = recolher_tudo(s, apenas=["sns-noticias"])
         assert ex.erros == 1

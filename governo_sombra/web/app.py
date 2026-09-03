@@ -575,10 +575,12 @@ def _correr_descoberta():
         com_sucesso = {f.entidade_id for f in s.scalars(select(Fonte).where(Fonte.ultimo_sucesso.isnot(None), Fonte.total_itens > 0))}
         ja_auto = {f.entidade_id for f in s.scalars(select(Fonte).where(Fonte.tipo == "rss", Fonte.id.like("%-rss-auto")))}
         entidades = [e for e in s.scalars(select(Entidade).where(Entidade.url.isnot(None), Entidade.activa.is_(True))) if e.id not in com_sucesso and e.id not in ja_auto]
+        urls_usados = {f.url.rstrip("/").lower() for f in s.scalars(select(Fonte))}
         for e in entidades:
-            feeds = descobrir_feeds(e.url)
+            feeds = [u for u in descobrir_feeds(e.url) if u.rstrip("/").lower() not in urls_usados]
             _diag_estado["descoberta"]["vistas"] += 1
             if feeds:
+                urls_usados.add(feeds[0].rstrip("/").lower())
                 fid = f"{e.id}-rss-auto"
                 if s.get(Fonte, fid) is None:
                     s.add(Fonte(id=fid, entidade_id=e.id, nome=f"{e.sigla or e.nome} - RSS (descoberto)", tipo="rss", url=feeds[0], config={}, verificada=False, prioridade=4))

@@ -11,7 +11,7 @@
     <form method="post" action="/fontes/descobrir"><button class="secundario botao" {% if diag.descoberta and diag.descoberta.a_correr %}disabled{% endif %} title="Procura feeds RSS nos sites das entidades que ainda não têm fonte a funcionar e adiciona-os">{{ 'A procurar feeds…' if diag.descoberta and diag.descoberta.a_correr else 'Descobrir feeds automaticamente' }}</button></form>
   </div>
 </section>
-{% if ingest.a_correr %}<p class="sub">A recolher em segundo plano. Actualiza a página daqui a uns minutos.</p>{% elif ingest.ultimo %}<p class="sub">Última recolha em segundo plano: {{ ingest.ultimo.novos }} novos, {{ ingest.ultimo.erros }} erros em {{ ingest.ultimo.fontes }} fontes.</p>{% endif %}
+{% if ingest.a_correr %}<p class="sub">A recolher em segundo plano. Actualiza a página daqui a uns minutos.</p>{% elif ingest.ultimo and ingest.ultimo.erro %}<p class="sub erro">A última recolha em segundo plano falhou: {{ ingest.ultimo.erro }}</p>{% elif ingest.ultimo %}<p class="sub">Última recolha em segundo plano: {{ ingest.ultimo.novos }} novos, {{ ingest.ultimo.erros }} erros em {{ ingest.ultimo.fontes }} fontes.</p>{% endif %}
 {% if diag.descoberta %}
 <section class="bloco">
   <h2>Descoberta de feeds {% if diag.descoberta.a_correr %}<small>a correr, {{ diag.descoberta.vistas }} sites vistos; actualiza a página</small>{% else %}<small>terminada: {{ diag.descoberta.vistas }} sites vistos</small>{% endif %}</h2>

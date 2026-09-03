@@ -24,8 +24,16 @@ def bd(tmp_path):
 def bd_com_dados(bd):
     from governo_sombra.ingest import recolher_tudo
 
+    from governo_sombra.models import Fonte
+
+    ids = ["sns-noticias", "ine-destaques", "dre-serie-1", "governo-comunicados-cm", "ar-iniciativas"]
     with bd.sessao_ctx() as s:
-        recolher_tudo(s, apenas=["sns-noticias", "ine-destaques", "dre-serie-1", "governo-comunicados-cm", "ar-iniciativas"], dir_fixtures=FIXTURES)
+        for fid in ids:
+            f = s.get(Fonte, fid)
+            f.activa = True
+            if fid == "governo-comunicados-cm":
+                f.tipo = "html"  # a fixture é HTML
+        recolher_tudo(s, apenas=ids, dir_fixtures=FIXTURES)
     return bd
 
 
