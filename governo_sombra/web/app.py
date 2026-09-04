@@ -489,6 +489,15 @@ def fontes(request: Request, todas: bool = False, s: Session = Depends(get_db)):
     )
 
 
+@app.post("/tarefas/fechar")
+def fechar_tarefas(s: Session = Depends(get_db)):
+    """Fecha à força as tarefas marcadas 'a correr' (quando ficam presas)."""
+    from ..tarefas import limpar_interrompidas
+
+    limpar_interrompidas(s)
+    return RedirectResponse("/fontes", status_code=303)
+
+
 @app.post("/fontes/recolher")
 def recolher_todas(s: Session = Depends(get_db)):
     lancar(s, "ingest", ["ingest"])

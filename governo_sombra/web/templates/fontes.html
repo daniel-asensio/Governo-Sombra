@@ -11,7 +11,7 @@
     <form method="post" action="/fontes/descobrir"><button class="secundario botao" {% if descoberta_activa %}disabled{% endif %} title="Procura feeds RSS nos sites das entidades que ainda não têm fonte a funcionar e adiciona-os">{{ 'A procurar feeds…' if descoberta_activa else 'Descobrir feeds automaticamente' }}</button></form>
   </div>
 </section>
-{% if ingest_activa %}<p class="sub">A recolher em segundo plano desde {{ ingest_activa.inicio | relativa }}. Podes continuar a usar a aplicação; actualiza esta página daqui a uns minutos.</p>
+{% if ingest_activa %}<p class="sub">Recolha geral a correr desde {{ ingest_activa.inicio | relativa }} (tarefa {{ ingest_activa.id }}). Podes continuar a usar a aplicação. Se passar de 20 minutos, considera-a presa: <form method="post" action="/tarefas/fechar" class="inline"><button class="ligacao">fechar tarefas presas</button></form></p>
 {% elif ingest_ultima and ingest_ultima.estado == 'erro' %}<p class="sub erro">A última recolha falhou: {{ ingest_ultima.detalhes.erro }}</p>
 {% elif ingest_ultima and ingest_ultima.detalhes %}<p class="sub">Última recolha ({{ ingest_ultima.fim | relativa }}): {{ ingest_ultima.detalhes.novos }} novos, {{ ingest_ultima.detalhes.erros }} erros em {{ ingest_ultima.detalhes.fontes }} fontes.</p>{% endif %}
 {% set desc = descoberta_activa or descoberta_ultima %}
@@ -35,7 +35,7 @@
       <td>{{ f.ultima_recolha | relativa if f.ultima_recolha else 'nunca' }}</td>
       <td>{% if f.ultimo_erro %}<small class="erro" title="{{ f.ultimo_erro }}">{{ f.ultimo_erro[:60] }}{% if f.ultimo_erro|length > 60 %}…{% endif %}</small>{% elif f.ultimo_sucesso %}ok{% endif %}</td>
       <td class="accoes">
-        <form method="post" action="/fontes/{{ f.id }}/recolher"><button class="ligacao">{{ 'a recolher…' if f.id in recolha_a_correr or ingest_activa else 'recolher' }}</button></form>
+        <form method="post" action="/fontes/{{ f.id }}/recolher"><button class="ligacao">{{ 'a recolher…' if f.id in recolha_a_correr else 'recolher' }}</button></form>
         <form method="post" action="/fontes/{{ f.id }}/diagnosticar"><button class="ligacao">{{ 'a diagnosticar…' if f.id in diag_a_correr else 'diagnosticar' }}</button></form>
         <form method="post" action="/fontes/{{ f.id }}/alternar"><button class="ligacao">{{ 'activar' if not f.activa else 'desactivar' }}</button></form>
       </td>
