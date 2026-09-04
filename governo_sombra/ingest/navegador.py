@@ -81,12 +81,48 @@ def observar(url: str, *, esperar: str | None = None, esperar_texto: str | None 
     return resultado
 
 
+import contextlib
+import time
+
+
+@contextlib.contextmanager
+def _um_browser_de_cada_vez(espera_max_s: float = 600):
+    """Só um Chromium de cada vez em toda a máquina (vários processos partilham o ficheiro de lock)."""
+    import fcntl
+    from pathlib import Path
+
+    from ..config import DIR_VAR
+
+    DIR_VAR.mkdir(parents=True, exist_ok=True)
+    caminho = Path(os.environ.get("GS_LOCK_NAVEGADOR") or (DIR_VAR / "navegador.lock"))
+    with open(caminho, "w") as f:
+        inicio = time.time()
+        while True:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.time() - inicio > espera_max_s:
+                    raise ErroFonte("outro mini-browser está a correr há demasiado tempo; tenta mais tarde")
+                time.sleep(2)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
 def renderizar(url: str, *, esperar: str | None = None, esperar_texto: str | None = None, timeout_s: float = 90, tempo_extra_ms: int = 1500, accoes=None) -> str:
     """Abre o URL num Chromium invisível e devolve o HTML depois do JavaScript correr.
 
     `esperar`: selector CSS que deve aparecer; `esperar_texto`: texto que deve
     aparecer na página; `accoes(page)`: função opcional para clicar/navegar.
+    Só corre um browser de cada vez na máquina (ver _um_browser_de_cada_vez).
     """
+    with _um_browser_de_cada_vez():
+        return _renderizar(url, esperar=esperar, esperar_texto=esperar_texto, timeout_s=timeout_s, tempo_extra_ms=tempo_extra_ms, accoes=accoes)
+
+
+def _renderizar(url: str, *, esperar: str | None = None, esperar_texto: str | None = None, timeout_s: float = 90, tempo_extra_ms: int = 1500, accoes=None) -> str:
     if not disponivel():
         raise ErroFonte("Esta fonte precisa do mini-browser (Playwright/Chromium). Instala com: pip install playwright && playwright install --with-deps chromium")
     from playwright.sync_api import Error as ErroPlaywright
