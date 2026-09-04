@@ -62,6 +62,9 @@ def recolher_fonte(s: Session, fonte: Fonte, *, dir_fixtures: Path | None = None
         fixture = _fixture_para(fonte, dir_fixtures)
         corpo = obter(fonte.url, fixture=fixture) if fixture else None
         brutos = adaptador.recolher(fonte.url, fonte.config or {}, corpo=corpo)
+        extra_cfg = getattr(adaptador, "config_actualizada", None)
+        if extra_cfg:
+            fonte.config = {**(fonte.config or {}), **extra_cfg}
         novos = guardar_itens(s, fonte, brutos, classificador)
         fonte.ultimo_sucesso = agora()
         fonte.ultimo_erro = None

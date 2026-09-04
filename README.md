@@ -87,8 +87,8 @@ Os URLs em `data/fontes.yaml` foram escritos a partir do conhecimento dos sites 
 
 Fontes que exigem passos adicionais:
 
-- **Assembleia da República**: os dados abertos (iniciativas, agenda, votações) estão em ficheiros JSON/XML por legislatura em https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx. Copia o URL do ficheiro "Iniciativas" da legislatura corrente para a fonte `ar-iniciativas`.
-- **Diário da República**: o adaptador raspa o sumário do dia; se tiveres credenciais dos web services do DRE, define `config.api_url`.
+- **Assembleia da República**: os dados abertos (iniciativas, agenda, votações) estão em ficheiros JSON/XML por legislatura em https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx. A fonte `ar-iniciativas` procura sozinha o ficheiro "Iniciativas" da legislatura mais recente nessa página e guarda-o em `config.url_ficheiro`; podes também indicá-lo à mão.
+- **Diário da República**: o site é uma aplicação OutSystems sem conteúdo fora do browser. O adaptador abre-o num Chromium invisível (Playwright) e lê os diplomas do sumário do dia. Precisa de `pip install playwright && playwright install --with-deps chromium` (já incluído no Dockerfile). Se tiveres credenciais dos web services do DRE, define `config.api_url` e o browser deixa de ser preciso.
 - **dados.gov.pt** e **BASE** (contratos públicos) têm APIs próprias que se podem ligar como fontes `json`.
 
 ## Estrutura

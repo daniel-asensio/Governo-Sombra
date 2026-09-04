@@ -49,7 +49,13 @@ class AdaptadorDRE:
         if api_url and corpo is None:
             corpo = obter(api_url)
             return self._de_json(corpo, config)
-        corpo = corpo if corpo is not None else obter(url)
+        if corpo is None:
+            # O site é uma aplicação OutSystems: sem JavaScript vem uma casca vazia.
+            # Renderizar no mini-browser e esperar que apareça algum diploma.
+            from .navegador import renderizar
+
+            html = renderizar(url, esperar="a[href*='/dr/detalhe/']", tempo_extra_ms=int(config.get("tempo_extra_ms", 2500)))
+            return self._de_html(html.encode("utf-8"), url, config)
         if corpo.lstrip().startswith(b"{") or corpo.lstrip().startswith(b"["):
             return self._de_json(corpo, config)
         return self._de_html(corpo, url, config)
@@ -87,12 +93,16 @@ class AdaptadorDRE:
             data_pagina = interpretar_data(cab.get("datetime") or cab.get_text(" "))
         # Cada diploma no sumário aparece normalmente como uma ligação cujo texto
         # começa pelo tipo de acto ("Decreto-Lei n.º 12/2026").
+        serie_pedida = str(serie) if serie else None
         for a in soup.select("a[href]"):
             texto = limpar_texto(a.get_text(" "), 600)
             if not texto:
                 continue
             tipo, numero = classificar_diploma(texto)
             if numero is None:
+                continue
+            serie_item = _serie_do_contexto(a) or serie_pedida
+            if serie_pedida and serie_item and serie_item != serie_pedida:
                 continue
             href = a["href"]
             if not href.startswith("http"):
@@ -121,7 +131,19 @@ class AdaptadorDRE:
                     resumo=resumo,
                     publicado_em=data_pagina,
                     tipo_documento=tipo,
-                    extra={"emissor": emissor, "serie": serie},
+                    extra={"emissor": emissor, "serie": serie_item},
                 )
             )
         return itens
+
+
+def _serie_do_contexto(a) -> str | None:
+    """Procura no cabeçalho mais próximo acima da ligação: "Série I" / "Série II" / "1.ª série"."""
+    import re as _re
+
+    padrao = _re.compile(r"(?:s[ée]rie\s*(i{1,2})\b|(\d)\.?[ªa]\s*s[ée]rie)")
+    for cab in a.find_all_previous(["h1", "h2", "h3", "h4", "h5"], limit=30):
+        m = padrao.search(cab.get_text(" ", strip=True)[:120].lower())
+        if m:
+            return str(len(m[1])) if m[1] else m[2]
+    return None

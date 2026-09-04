@@ -25,6 +25,22 @@ TIPOS_INICIATIVA = {
 }
 
 
+def _resolver_ficheiro(url_pagina: str, config: dict) -> str:
+    """Devolve o URL do ficheiro JSON: o guardado em config, ou procurado na página (com mini-browser se preciso)."""
+    if config.get("url_ficheiro"):
+        return config["url_ficheiro"]
+    html = obter(url_pagina)
+    encontrado = encontrar_ficheiro_iniciativas(html, url_pagina)
+    if not encontrado:
+        from .navegador import disponivel, renderizar
+
+        if disponivel():
+            encontrado = encontrar_ficheiro_iniciativas(renderizar(url_pagina, esperar_texto="Iniciativas"), url_pagina)
+    if not encontrado:
+        raise ValueError("Não encontrei o ficheiro JSON de Iniciativas na página de Dados Abertos. Podes indicá-lo à mão em 'alterar URL'.")
+    return encontrado
+
+
 def _lista_iniciativas(dados):
     if isinstance(dados, list):
         return dados
@@ -51,10 +67,47 @@ def _primeiro(d: dict, *chaves):
     return None
 
 
+ROMANOS = {"I": 1, "V": 5, "X": 10, "L": 50}
+
+
+def _romano(s: str) -> int:
+    total, anterior = 0, 0
+    for c in reversed(s.upper()):
+        v = ROMANOS.get(c, 0)
+        total = total - v if v < anterior else total + v
+        anterior = max(anterior, v)
+    return total
+
+
+def encontrar_ficheiro_iniciativas(html: str | bytes, base: str) -> str | None:
+    """Na página de Dados Abertos, escolhe a ligação ao JSON de Iniciativas da legislatura mais recente."""
+    import re
+    from urllib.parse import unquote, urljoin
+
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "lxml")
+    candidatos = []
+    for a in soup.select("a[href]"):
+        href = a["href"]
+        alvo = unquote(href + " " + a.get_text(" ")).lower()
+        if "iniciativa" in alvo and "json" in alvo:
+            m = re.search(r"iniciativas[_\s-]*([ivxl]+)", alvo)
+            leg = _romano(m[1]) if m else 0
+            candidatos.append((leg, urljoin(base, href)))
+    if not candidatos:
+        return None
+    candidatos.sort(key=lambda c: -c[0])
+    return candidatos[0][1]
+
+
 class AdaptadorIniciativasAR:
+    config_actualizada: dict | None = None
+
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
-        if corpo is None and "DadosAbertos.aspx" in url:
-            raise ValueError("Falta configurar: substitui o URL pelo do ficheiro JSON 'Iniciativas' da legislatura corrente, em parlamento.pt › Cidadania › Dados Abertos")
+        if corpo is None and "DadosAbertos" in url:
+            url = _resolver_ficheiro(url, config)
+            self.config_actualizada = {"url_ficheiro": url}
         corpo = corpo if corpo is not None else obter(url)
         try:
             dados = json.loads(corpo)

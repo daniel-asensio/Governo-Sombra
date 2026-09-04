@@ -75,3 +75,23 @@ def test_rss_datas_invalidas_nao_rebentam():
     assert itens[0].publicado_em is None
     assert itens[1].publicado_em == datetime(2026, 9, 3, 9, 0)
     assert len(AdaptadorRSS().recolher("https://x", {"maximo": 1}, corpo=(FIXTURES / "data-invalida.xml").read_bytes())) == 1
+
+
+def test_dre_series_no_html_rendido():
+    from governo_sombra.ingest.dre import AdaptadorDRE
+
+    html = (FIXTURES / "dre-rendido.html").read_bytes()
+    s1 = AdaptadorDRE().recolher("https://diariodarepublica.pt/dr/home", {"serie": 1}, corpo=html)
+    s2 = AdaptadorDRE().recolher("https://diariodarepublica.pt/dr/home", {"serie": 2}, corpo=html)
+    assert [i.titulo for i in s1] == ["Decreto-Lei n.º 55/2026", "Portaria n.º 300/2026"]
+    assert [i.titulo for i in s2] == ["Despacho n.º 9000/2026"]
+    assert s2[0].extra["emissor"] == "Saúde"
+
+
+def test_ar_encontra_ficheiro_json():
+    from governo_sombra.ingest.parlamento import encontrar_ficheiro_iniciativas
+
+    html = """<a href="/get?fich=IniciativasXVI_json.txt">Iniciativas XVI (JSON)</a>
+    <a href="/get?fich=IniciativasXVII_json.txt">Iniciativas XVII (JSON)</a>
+    <a href="/get?fich=IniciativasXVII_xml.txt">Iniciativas XVII (XML)</a>"""
+    assert encontrar_ficheiro_iniciativas(html, "https://www.parlamento.pt/x/") == "https://www.parlamento.pt/get?fich=IniciativasXVII_json.txt"
