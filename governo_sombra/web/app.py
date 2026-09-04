@@ -544,6 +544,7 @@ def alterar_url_fonte(fonte_id: str, url: str = Form(...), tipo: str | None = Fo
     cfg = dict(f.config or {})
     cfg.pop("diagnostico", None)
     cfg.pop("nota", None)
+    cfg.pop("url_ficheiro", None)
     f.config = cfg
     s.commit()
     lancar(s, "ingest", ["ingest", "--fonte", fonte_id], alvo=fonte_id)

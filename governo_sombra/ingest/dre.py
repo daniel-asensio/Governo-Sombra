@@ -51,11 +51,15 @@ class AdaptadorDRE:
             return self._de_json(corpo, config)
         if corpo is None:
             # O site é uma aplicação OutSystems: sem JavaScript vem uma casca vazia.
-            # Renderizar no mini-browser e esperar que apareça algum diploma.
-            from .navegador import renderizar
+            # Renderizar no mini-browser, esperar pelos diplomas e, se não aparecerem,
+            # explicar o que o browser viu para se poder ajustar.
+            from .navegador import observar
 
-            html = renderizar(url, esperar="a[href*='/dr/detalhe/']", tempo_extra_ms=int(config.get("tempo_extra_ms", 2500)))
-            return self._de_html(html.encode("utf-8"), url, config)
+            obs = observar(url, esperar=config.get("esperar", "a[href*='/dr/detalhe/']"), timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)))
+            itens = self._de_html(obs["html"].encode("utf-8"), url, config)
+            if not itens:
+                raise ValueError(f"o mini-browser abriu a página ({obs['n_ligacoes']} ligações) mas não reconheceu diplomas. Texto visível: «{obs['texto'][:300]}»")
+            return itens
         if corpo.lstrip().startswith(b"{") or corpo.lstrip().startswith(b"["):
             return self._de_json(corpo, config)
         return self._de_html(corpo, url, config)

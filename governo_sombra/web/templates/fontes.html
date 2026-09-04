@@ -50,7 +50,15 @@
         {% if dg.nota %}<li class="aviso-txt">{{ dg.nota }}</li>{% endif %}
         {% if dg.feeds_no_site %}<li>Feeds RSS encontrados no site da entidade:
           {% for u in dg.feeds_no_site %}<form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input type="hidden" name="url" value="{{ u }}"><input type="hidden" name="tipo" value="rss"><code>{{ u }}</code> <button class="ligacao">usar este feed</button></form>{% endfor %}</li>{% endif %}
-          {% if dg.sondagem %}<li><details open><summary>Sondagem ao site (pistas técnicas)</summary>
+          {% if dg.navegador %}<li><strong>Mini-browser</strong>:
+          {% if dg.navegador.erro %}<span class="erro">{{ dg.navegador.erro }}</span>
+          {% else %}{{ 'encontrou o que esperava' if dg.navegador.esperou else 'não encontrou o que esperava a tempo; mostra o que havia' }}, {{ dg.navegador.n_ligacoes }} ligações.
+            <details open><summary>Texto visível</summary><p class="sub">{{ dg.navegador.texto }}</p></details>
+            {% if dg.navegador.interessantes %}<details open><summary>Ligações relevantes ({{ dg.navegador.interessantes | length }})</summary><ul>
+              {% for tx, u in dg.navegador.interessantes %}<li><form method="post" action="/fontes/{{ f.id }}/url" class="inline"><input type="hidden" name="url" value="{{ u }}"><span>{{ tx or '(sem texto)' }}</span> <small><code>{{ u[:100] }}</code></small> <button class="ligacao">usar</button></form></li>{% endfor %}</ul></details>{% endif %}
+            {% if dg.navegador.amostra %}<details><summary>Amostra de ligações</summary><ul>{% for tx, u in dg.navegador.amostra %}<li>{{ tx }} <small><code>{{ u[:100] }}</code></small></li>{% endfor %}</ul></details>{% endif %}
+          {% endif %}</li>{% endif %}
+        {% if dg.sondagem %}<li><details open><summary>Sondagem ao site (pistas técnicas)</summary>
           {% if dg.sondagem.sitemap %}<p>Sitemap: <code>{{ dg.sondagem.sitemap }}</code> ({{ dg.sondagem.sitemap_total }} endereços). Exemplos:</p><ul>{% for u in dg.sondagem.sitemap_exemplos %}<li><code>{{ u }}</code></li>{% endfor %}</ul>{% endif %}
           {% if dg.sondagem.caminhos_que_respondem %}<p>Caminhos que respondem:</p><ul>{% for c in dg.sondagem.caminhos_que_respondem %}<li><code>{{ c.url }}</code>: {{ c.inicio }}</li>{% endfor %}</ul>{% endif %}
           {% if dg.sondagem.robots %}<p>robots.txt:</p><pre>{{ dg.sondagem.robots | join('\n') }}</pre>{% endif %}

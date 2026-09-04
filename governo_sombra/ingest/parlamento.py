@@ -31,13 +31,19 @@ def _resolver_ficheiro(url_pagina: str, config: dict) -> str:
         return config["url_ficheiro"]
     html = obter(url_pagina)
     encontrado = encontrar_ficheiro_iniciativas(html, url_pagina)
+    obs = None
     if not encontrado:
-        from .navegador import disponivel, renderizar
+        from .navegador import disponivel, observar
 
         if disponivel():
-            encontrado = encontrar_ficheiro_iniciativas(renderizar(url_pagina, esperar_texto="Iniciativas"), url_pagina)
+            obs = observar(url_pagina, esperar="a[href*='getfile'], a[href*='.json'], a[href*='json']", padrao_ligacoes=r"getfile|json|xml|iniciativ")
+            encontrado = encontrar_ficheiro_iniciativas(obs["html"], url_pagina)
     if not encontrado:
-        raise ValueError("Não encontrei o ficheiro JSON de Iniciativas na página de Dados Abertos. Podes indicá-lo à mão em 'alterar URL'.")
+        pista = ""
+        if obs:
+            exemplos = "; ".join(f"{tx} → {h[:90]}" for tx, h in (obs.get("interessantes") or [])[:5])
+            pista = f" O mini-browser viu {obs['n_ligacoes']} ligações. Ligações com getfile/json/iniciativ: {exemplos or 'nenhuma'}."
+        raise ValueError("Não encontrei o ficheiro JSON de Iniciativas na página de Dados Abertos." + pista + " Podes indicá-lo à mão em 'alterar URL' (usa 'diagnosticar' para ver as ligações).")
     return encontrado
 
 

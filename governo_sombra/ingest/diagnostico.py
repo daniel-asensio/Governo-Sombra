@@ -37,6 +37,18 @@ def diagnosticar(fonte: Fonte) -> dict:
             if d.get("ligacoes", 0) < 5:
                 d["nota"] = "Quase sem ligações: a página é provavelmente construída por JavaScript e o leitor não a consegue ver. Procurar um feed RSS ou uma página alternativa."
             d["candidatas"] = ligacoes_candidatas(fonte.url, corpo)[:8]
+    if fonte.tipo in ("dre", "parlamento_iniciativas") or (fonte.config or {}).get("navegador"):
+        from .navegador import disponivel, observar
+
+        if disponivel():
+            try:
+                padrao = r"getfile|json|xml|iniciativ" if fonte.tipo == "parlamento_iniciativas" else r"detalhe|serie|sumario|diploma|pdf|rss|json"
+                obs = observar(fonte.url, esperar="a[href*='getfile'], a[href*='json']" if fonte.tipo == "parlamento_iniciativas" else "a[href*='/dr/detalhe/']", padrao_ligacoes=padrao)
+                d["navegador"] = {"esperou": obs["esperou"], "aviso": obs.get("aviso"), "texto": obs["texto"][:800], "n_ligacoes": obs["n_ligacoes"], "amostra": obs["amostra"], "interessantes": obs.get("interessantes") or []}
+            except ErroFonte as e:
+                d["navegador"] = {"erro": str(e)[:300]}
+        else:
+            d["navegador"] = {"erro": "mini-browser não instalado"}
     site = fonte.entidade.url if fonte.entidade else None
     if site:
         d["feeds_no_site"] = descobrir_feeds(site)[:5]
