@@ -70,9 +70,15 @@ class AdaptadorDRE:
 
         from bs4 import BeautifulSoup
 
-        from .navegador import observar
+        from .navegador import clicar_texto, observar
 
-        obs = observar(url, esperar="a[href*='/dr/detalhe/diario-republica/']", timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)))
+        serie_cfg = str(config.get("serie") or "")
+        accoes = None
+        if config.get("clicar"):
+            accoes = clicar_texto(config["clicar"])
+        elif serie_cfg == "2":
+            accoes = clicar_texto(r"^\s*(2\.?[ªa]\s*s[ée]rie|s[ée]rie\s*II)\s*$")
+        obs = observar(url, esperar="a[href*='/dr/detalhe/diario-republica/']", timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)), accoes=accoes)
         soup = BeautifulSoup(obs["html"], "lxml")
         numeros = []
         for a in soup.select("a[href*='/dr/detalhe/diario-republica/']"):

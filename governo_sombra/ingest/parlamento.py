@@ -54,6 +54,28 @@ def _resolver_ficheiro(url_pagina: str, config: dict) -> str:
     return encontrado
 
 
+def _ler_json_tolerante(corpo: bytes, url: str):
+    """Os ficheiros do Parlamento vêm por vezes com BOM, em UTF-16, ou embrulhados."""
+    import codecs
+
+    if corpo[:2] in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE):
+        texto = corpo.decode("utf-16")
+    elif corpo[:3] == codecs.BOM_UTF8:
+        texto = corpo[3:].decode("utf-8", "replace")
+    else:
+        texto = corpo.decode("utf-8", "replace")
+    texto = texto.strip().lstrip("\ufeff")
+    try:
+        return json.loads(texto)
+    except ValueError:
+        inicio = texto[:160].replace("\n", " ")
+        if inicio.lstrip().startswith("<"):
+            dica = "parece XML ou HTML"
+        else:
+            dica = "formato desconhecido"
+        raise ValueError(f"A resposta de {url[:120]} não é JSON ({dica}). Início: «{inicio}»") from None
+
+
 def _lista_iniciativas(dados):
     if isinstance(dados, list):
         return dados
@@ -135,10 +157,7 @@ class AdaptadorIniciativasAR:
             url = _resolver_ficheiro(url, config)
             self.config_actualizada = {"url_ficheiro": url}
         corpo = corpo if corpo is not None else obter(url)
-        try:
-            dados = json.loads(corpo)
-        except ValueError:
-            raise ValueError("A resposta não é JSON. Confirma que o URL é o do ficheiro de Iniciativas (JSON) e não a página web") from None
+        dados = _ler_json_tolerante(corpo, url)
         itens = []
         for ini in _lista_iniciativas(dados):
             if not isinstance(ini, dict):

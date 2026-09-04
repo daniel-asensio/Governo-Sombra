@@ -42,6 +42,7 @@ fontes:
       link: a
       data: time, .date, .data
       resumo: p
+    navegador: true
   verificada: false
   prioridade: 8
   activa: true

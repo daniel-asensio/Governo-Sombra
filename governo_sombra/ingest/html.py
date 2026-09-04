@@ -118,6 +118,10 @@ class AdaptadorHTML:
     """Raspagem genérica configurável por selectores CSS, com modo heurístico de reserva."""
 
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
+        if corpo is None and config.get("navegador"):
+            from .navegador import observar
+
+            corpo = observar(url, esperar=config.get("esperar"), timeout_s=float(config.get("timeout_s", 120)))["html"].encode("utf-8")
         corpo = corpo if corpo is not None else obter(url)
         itens = extrair_itens(corpo, url, config)
         if not itens and config.get("heuristico", True):

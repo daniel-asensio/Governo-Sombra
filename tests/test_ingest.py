@@ -105,3 +105,20 @@ def test_dre_serie_do_texto_e_subpagina_ar():
     assert _serie_do_texto("2.ª série") == "2"
     assert _serie_do_texto("Diário da República n.º 172/2026, de 4 de setembro de 2026") is None
     assert encontrar_subpagina_iniciativas('<a href="/Cidadania/Paginas/DAIniciativas.aspx">Recursos</a>', "https://www.parlamento.pt/x/y.aspx") == "https://www.parlamento.pt/Cidadania/Paginas/DAIniciativas.aspx"
+
+
+def test_ar_json_com_bom_e_utf16():
+    import codecs
+    import json
+
+    from governo_sombra.ingest.parlamento import AdaptadorIniciativasAR, _ler_json_tolerante
+
+    dados = json.dumps({"Iniciativas": [{"IniNr": "1", "IniTipo": "J", "IniTitulo": "Teste com BOM"}]}).encode("utf-8")
+    assert len(AdaptadorIniciativasAR().recolher("https://x/f.json", {}, corpo=codecs.BOM_UTF8 + dados)) == 1
+    assert len(AdaptadorIniciativasAR().recolher("https://x/f.json", {}, corpo=codecs.BOM_UTF16_LE + dados.decode().encode("utf-16-le"))) == 1
+    try:
+        _ler_json_tolerante(b"<html>nada</html>", "https://x")
+    except ValueError as e:
+        assert "XML ou HTML" in str(e)
+    else:
+        raise AssertionError("devia falhar")

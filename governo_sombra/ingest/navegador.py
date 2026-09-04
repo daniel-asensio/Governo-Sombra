@@ -26,7 +26,27 @@ def disponivel() -> bool:
     return True
 
 
-def observar(url: str, *, esperar: str | None = None, esperar_texto: str | None = None, timeout_s: float = 150, tempo_extra_ms: int = 2500, padrao_ligacoes: str | None = None) -> dict:
+def clicar_texto(padrao: str):
+    """Devolve uma acção que clica no primeiro elemento cujo texto corresponde ao padrão (regex), se existir."""
+    import re
+
+    def accao(page):
+        try:
+            alvo = page.get_by_text(re.compile(padrao, re.I)).first
+            if alvo.count() and alvo.is_visible():
+                alvo.click()
+                page.wait_for_timeout(2500)
+                try:
+                    page.wait_for_load_state("networkidle", timeout=15000)
+                except Exception:
+                    pass
+        except Exception as e:  # pragma: no cover - depende do site
+            log.info("clique em %r falhou: %s", padrao, str(e)[:120])
+
+    return accao
+
+
+def observar(url: str, *, esperar: str | None = None, esperar_texto: str | None = None, timeout_s: float = 150, tempo_extra_ms: int = 2500, padrao_ligacoes: str | None = None, accoes=None) -> dict:
     """Rende a página e devolve o que um humano veria: texto, número de ligações, amostra de ligações.
 
     Nunca falha por timeout da espera: se o que se esperava não aparecer, devolve o
@@ -42,19 +62,19 @@ def observar(url: str, *, esperar: str | None = None, esperar_texto: str | None 
         return None
 
     try:
-        html = renderizar(url, esperar=esperar, esperar_texto=esperar_texto, timeout_s=timeout_s, tempo_extra_ms=tempo_extra_ms)
+        html = renderizar(url, esperar=esperar, esperar_texto=esperar_texto, timeout_s=timeout_s, tempo_extra_ms=tempo_extra_ms, accoes=accoes)
     except ErroFonte as e:
         if "não carregou a tempo" not in str(e):
             raise
         resultado["esperou"] = False
         resultado["aviso"] = str(e)[:200]
-        html = renderizar(url, timeout_s=timeout_s, tempo_extra_ms=max(tempo_extra_ms, 6000))
+        html = renderizar(url, timeout_s=timeout_s, tempo_extra_ms=max(tempo_extra_ms, 6000), accoes=accoes)
     soup = BeautifulSoup(html, "lxml")
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
     texto = re.sub(r"\s+", " ", soup.get_text(" ")).strip()
     ligacoes = [(a.get_text(" ", strip=True)[:80], a["href"]) for a in soup.select("a[href]")]
-    resultado.update({"html": html, "texto": texto[:1500], "n_ligacoes": len(ligacoes), "amostra": ligacoes[:15]})
+    resultado.update({"html": html, "texto": texto[:1500], "n_ligacoes": len(ligacoes), "amostra": ligacoes[:60]})
     if padrao_ligacoes:
         rx = re.compile(padrao_ligacoes, re.I)
         resultado["interessantes"] = [(tx, h) for tx, h in ligacoes if rx.search(h) or rx.search(tx)][:25]
