@@ -50,19 +50,68 @@ class AdaptadorDRE:
             corpo = obter(api_url)
             return self._de_json(corpo, config)
         if corpo is None:
-            # O site é uma aplicação OutSystems: sem JavaScript vem uma casca vazia.
-            # Renderizar no mini-browser, esperar pelos diplomas e, se não aparecerem,
-            # explicar o que o browser viu para se poder ajustar.
-            from .navegador import observar
+            return self._via_navegador(url, config)
+        if corpo.lstrip().startswith(b"{") or corpo.lstrip().startswith(b"["):
+            return self._de_json(corpo, config)
+        return self._de_html(corpo, url, config)
 
-            obs = observar(url, esperar=config.get("esperar", "a[href*='/dr/detalhe/']"), timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)))
+    config_actualizada: dict | None = None
+
+    def _via_navegador(self, url: str, config: dict) -> list[ItemBruto]:
+        """O site é uma aplicação OutSystems: sem JavaScript vem uma casca vazia.
+
+        1. Renderiza a página inicial e procura as ligações aos números do dia
+           ("Diário da República n.º 172/2026, de 4 de setembro de 2026").
+        2. Renderiza cada número e lê os diplomas dessa edição (só os publicados
+           nesse dia, não as citações a diplomas antigos).
+        Números já lidos ficam guardados na configuração para não se repetirem.
+        """
+        from urllib.parse import urljoin
+
+        from bs4 import BeautifulSoup
+
+        from .navegador import observar
+
+        obs = observar(url, esperar="a[href*='/dr/detalhe/diario-republica/']", timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)))
+        soup = BeautifulSoup(obs["html"], "lxml")
+        numeros = []
+        for a in soup.select("a[href*='/dr/detalhe/diario-republica/']"):
+            href = urljoin(url, a["href"])
+            texto = limpar_texto(a.get_text(" "), 200) or ""
+            if href not in [n[0] for n in numeros]:
+                numeros.append((href, texto))
+        if not numeros:
+            # Sem ligação ao número do dia: usar o que a página inicial mostra.
             itens = self._de_html(obs["html"].encode("utf-8"), url, config)
             if not itens:
                 raise ValueError(f"o mini-browser abriu a página ({obs['n_ligacoes']} ligações) mas não reconheceu diplomas. Texto visível: «{obs['texto'][:300]}»")
             return itens
-        if corpo.lstrip().startswith(b"{") or corpo.lstrip().startswith(b"["):
-            return self._de_json(corpo, config)
-        return self._de_html(corpo, url, config)
+        serie = str(config.get("serie") or "")
+        ja_lidos = set(config.get("numeros_lidos") or [])
+        itens: list[ItemBruto] = []
+        lidos_agora = []
+        for href, texto in numeros[:4]:
+            serie_num = _serie_do_texto(texto)
+            if serie and serie_num and serie_num != serie:
+                continue
+            if href in ja_lidos:
+                continue
+            edicao = observar(href, esperar="a[href*='/dr/detalhe/']", timeout_s=float(config.get("timeout_s", 150)), tempo_extra_ms=int(config.get("tempo_extra_ms", 4000)))
+            serie_pagina = _serie_do_texto(edicao["texto"][:400]) or serie_num
+            if serie and serie_pagina and serie_pagina != serie:
+                continue
+            data = interpretar_data(texto) or interpretar_data(edicao["texto"][:400])
+            cfg_edicao = {**config, "serie": None}
+            for it in self._de_html(edicao["html"].encode("utf-8"), href, cfg_edicao):
+                if "/dr/detalhe/diario-republica/" in (it.url or ""):
+                    continue
+                it.publicado_em = it.publicado_em or data
+                it.extra = {**(it.extra or {}), "serie": serie_pagina or serie or None, "numero_dr": texto}
+                itens.append(it)
+            lidos_agora.append(href)
+        if lidos_agora:
+            self.config_actualizada = {"numeros_lidos": (list(ja_lidos) + lidos_agora)[-30:]}
+        return itens
 
     def _de_json(self, corpo: bytes, config: dict) -> list[ItemBruto]:
         dados = json.loads(corpo)
@@ -139,6 +188,17 @@ class AdaptadorDRE:
                 )
             )
         return itens
+
+
+def _serie_do_texto(texto: str | None) -> str | None:
+    import re as _re
+
+    if not texto:
+        return None
+    m = _re.search(r"(?:s[ée]rie\s*(i{1,2})\b|(\d)\.?[ªa]\s*s[ée]rie)", texto.lower())
+    if not m:
+        return None
+    return str(len(m[1])) if m[1] else m[2]
 
 
 def _serie_do_contexto(a) -> str | None:

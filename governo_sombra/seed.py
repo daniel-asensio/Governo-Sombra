@@ -52,7 +52,10 @@ def carregar_fontes(s: Session, dir_dados: Path = DIR_DADOS) -> int:
         fonte.entidade_id = f["entidade"]
         fonte.nome = f["nome"]
         fonte.tipo = f["tipo"]
-        fonte.url = f["url"]
+        if fonte.ultimo_sucesso and fonte.total_itens and fonte.url != f["url"] and not f.get("verificada"):
+            pass  # a instalação tem um URL que funciona; não sobrepor com um por confirmar
+        else:
+            fonte.url = f["url"]
         fonte.config = f.get("config") or {}
         fonte.verificada = bool(f.get("verificada", False))
         fonte.prioridade = int(f.get("prioridade", 5))
@@ -61,6 +64,9 @@ def carregar_fontes(s: Session, dir_dados: Path = DIR_DADOS) -> int:
         elif f.get("activa") is False and not fonte.ultimo_sucesso:
             # O YAML diz que o URL está por confirmar e esta instalação nunca conseguiu lê-lo.
             fonte.activa = False
+        elif f.get("activa") is True and not fonte.activa and not fonte.ultimo_sucesso:
+            fonte.activa = True
+            fonte.ultimo_erro = None
         if f.get("nota"):
             fonte.config = {**(fonte.config or {}), "nota": f["nota"]}
         s.add(fonte)

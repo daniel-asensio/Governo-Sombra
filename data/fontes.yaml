@@ -25,27 +25,26 @@ fontes:
   entidade: assembleia-republica
   nome: AR - Iniciativas legislativas (dados abertos)
   tipo: parlamento_iniciativas
-  url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+  url: https://www.parlamento.pt/Cidadania/Paginas/DAIniciativas.aspx
   config:
-    nota: Substituir pelo URL do ficheiro JSON 'Iniciativas' da legislatura corrente, obtido na página de Dados Abertos.
+    nota: Procura sozinho o ficheiro JSON de Iniciativas mais recente nesta página.
   verificada: false
   prioridade: 9
 - id: ar-agenda
   entidade: assembleia-republica
   nome: AR - Agenda parlamentar
   tipo: html
-  url: https://www.parlamento.pt/AgendaParlamentar
+  url: https://agenda.parlamento.pt/
   config:
     selectores:
-      item: .agenda-item, .Agenda .item, article
-      titulo: h3, h4, .titulo, a
+      item: article, .item, .event, li
+      titulo: h2, h3, a
       link: a
-      data: .data, time, .date
-      resumo: p, .descricao
+      data: time, .date, .data
+      resumo: p
   verificada: false
   prioridade: 8
-  activa: false
-  nota: URL apontado de memória deu erro; usar 'diagnosticar' na página Fontes para encontrar o certo e reactivar.
+  activa: true
 - id: ar-noticias
   entidade: assembleia-republica
   nome: AR - Notícias

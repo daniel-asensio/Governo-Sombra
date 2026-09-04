@@ -31,6 +31,13 @@ def _resolver_ficheiro(url_pagina: str, config: dict) -> str:
         return config["url_ficheiro"]
     html = obter(url_pagina)
     encontrado = encontrar_ficheiro_iniciativas(html, url_pagina)
+    if not encontrado:
+        # A página geral de Dados Abertos remete para uma sub-página de recursos por tema.
+        sub = encontrar_subpagina_iniciativas(html, url_pagina)
+        if sub and sub != url_pagina:
+            url_pagina = sub
+            html = obter(url_pagina)
+            encontrado = encontrar_ficheiro_iniciativas(html, url_pagina)
     obs = None
     if not encontrado:
         from .navegador import disponivel, observar
@@ -105,6 +112,19 @@ def encontrar_ficheiro_iniciativas(html: str | bytes, base: str) -> str | None:
         return None
     candidatos.sort(key=lambda c: -c[0])
     return candidatos[0][1]
+
+
+def encontrar_subpagina_iniciativas(html: str | bytes, base: str) -> str | None:
+    from urllib.parse import urljoin
+
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "lxml")
+    for a in soup.select("a[href]"):
+        href = a["href"]
+        if "dainiciativas" in href.lower():
+            return urljoin(base, href)
+    return None
 
 
 class AdaptadorIniciativasAR:

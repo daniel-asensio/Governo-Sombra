@@ -95,3 +95,13 @@ def test_ar_encontra_ficheiro_json():
     <a href="/get?fich=IniciativasXVII_json.txt">Iniciativas XVII (JSON)</a>
     <a href="/get?fich=IniciativasXVII_xml.txt">Iniciativas XVII (XML)</a>"""
     assert encontrar_ficheiro_iniciativas(html, "https://www.parlamento.pt/x/") == "https://www.parlamento.pt/get?fich=IniciativasXVII_json.txt"
+
+
+def test_dre_serie_do_texto_e_subpagina_ar():
+    from governo_sombra.ingest.dre import _serie_do_texto
+    from governo_sombra.ingest.parlamento import encontrar_subpagina_iniciativas
+
+    assert _serie_do_texto("Diário da República n.º 172/2026, Série II de 4 de setembro") == "2"
+    assert _serie_do_texto("2.ª série") == "2"
+    assert _serie_do_texto("Diário da República n.º 172/2026, de 4 de setembro de 2026") is None
+    assert encontrar_subpagina_iniciativas('<a href="/Cidadania/Paginas/DAIniciativas.aspx">Recursos</a>', "https://www.parlamento.pt/x/y.aspx") == "https://www.parlamento.pt/Cidadania/Paginas/DAIniciativas.aspx"
