@@ -108,6 +108,15 @@ def get_db():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     criar_esquema()
+    from ..tarefas import limpar_interrompidas
+
+    s = sessao()
+    try:
+        n = limpar_interrompidas(s)
+        if n:
+            log.info("%d tarefas interrompidas por reinício foram fechadas", n)
+    finally:
+        s.close()
     scheduler = None
     if definicoes.scheduler:
         from ..scheduler import iniciar
@@ -464,6 +473,7 @@ def fontes(request: Request, todas: bool = False, s: Session = Depends(get_db)):
     lista = list(s.scalars(select(Fonte).options(selectinload(Fonte.entidade)).order_by(Fonte.activa.desc(), Fonte.prioridade.desc(), Fonte.nome)))
     execucoes = list(s.scalars(select(Execucao).order_by(Execucao.id.desc()).limit(10)))
     diag_a_correr = {tk.alvo for tk in s.scalars(select(Tarefa).where(Tarefa.tipo == "diagnostico", Tarefa.estado == "a_correr"))}
+    recolha_a_correr = {tk.alvo for tk in s.scalars(select(Tarefa).where(Tarefa.tipo == "ingest", Tarefa.estado == "a_correr", Tarefa.alvo.isnot(None)))}
     return render(
         request,
         "fontes.html",
@@ -475,6 +485,7 @@ def fontes(request: Request, todas: bool = False, s: Session = Depends(get_db)):
         descoberta_activa=tarefa_activa(s, "descoberta"),
         descoberta_ultima=ultima_tarefa(s, "descoberta"),
         diag_a_correr=diag_a_correr,
+        recolha_a_correr=recolha_a_correr,
     )
 
 

@@ -35,7 +35,7 @@
       <td>{{ f.ultima_recolha | relativa if f.ultima_recolha else 'nunca' }}</td>
       <td>{% if f.ultimo_erro %}<small class="erro" title="{{ f.ultimo_erro }}">{{ f.ultimo_erro[:60] }}{% if f.ultimo_erro|length > 60 %}…{% endif %}</small>{% elif f.ultimo_sucesso %}ok{% endif %}</td>
       <td class="accoes">
-        <form method="post" action="/fontes/{{ f.id }}/recolher"><button class="ligacao">recolher</button></form>
+        <form method="post" action="/fontes/{{ f.id }}/recolher"><button class="ligacao">{{ 'a recolher…' if f.id in recolha_a_correr or ingest_activa else 'recolher' }}</button></form>
         <form method="post" action="/fontes/{{ f.id }}/diagnosticar"><button class="ligacao">{{ 'a diagnosticar…' if f.id in diag_a_correr else 'diagnosticar' }}</button></form>
         <form method="post" action="/fontes/{{ f.id }}/alternar"><button class="ligacao">{{ 'activar' if not f.activa else 'desactivar' }}</button></form>
       </td>

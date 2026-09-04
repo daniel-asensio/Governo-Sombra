@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from .models import Tarefa, agora
 
-MINUTOS_ATE_CONSIDERAR_MORTA = 45
+MINUTOS_ATE_CONSIDERAR_MORTA = 20
 
 
 def tarefa_activa(s: Session, tipo: str, alvo: str | None = None) -> Tarefa | None:
@@ -70,3 +70,16 @@ def terminar(s: Session, t: Tarefa | None, *, erro: str | None = None, **detalhe
     t.fim = agora()
     t.detalhes = {**(t.detalhes or {}), **detalhes, **({"erro": erro[:500]} if erro else {})}
     s.commit()
+
+
+def limpar_interrompidas(s: Session) -> int:
+    """Ao arrancar o servidor, nenhuma tarefa pode estar a correr: os subprocessos
+    morreram com o reinício. Marca-as como interrompidas para não bloquearem novas."""
+    n = 0
+    for t in s.scalars(select(Tarefa).where(Tarefa.estado == "a_correr")):
+        t.estado = "erro"
+        t.fim = agora()
+        t.detalhes = {**(t.detalhes or {}), "erro": "interrompida por reinício do servidor"}
+        n += 1
+    s.commit()
+    return n

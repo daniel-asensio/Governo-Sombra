@@ -140,3 +140,18 @@ def test_cli_diagnosticar_regista_tarefa(bd_com_dados, capsys):
         t = s.get(Tarefa, 7)
         assert t.estado == "ok" and t.tipo == "diagnostico"
         assert s.get(Fonte, "sns-noticias").config["diagnostico"]["estado"] == "erro"
+
+
+def test_tarefas_interrompidas_sao_fechadas_no_arranque(bd_com_dados):
+    from fastapi.testclient import TestClient
+
+    from governo_sombra.models import Tarefa, agora
+    from governo_sombra.web.app import app
+
+    with bd_com_dados.sessao_ctx() as s:
+        s.add(Tarefa(tipo="ingest", alvo="sns-noticias", estado="a_correr", inicio=agora()))
+    with TestClient(app):
+        pass
+    with bd_com_dados.sessao_ctx() as s:
+        t = s.scalar(__import__("sqlalchemy").select(Tarefa))
+        assert t.estado == "erro" and "reinício" in t.detalhes["erro"]
