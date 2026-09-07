@@ -122,3 +122,22 @@ def test_ar_json_com_bom_e_utf16():
         assert "XML ou HTML" in str(e)
     else:
         raise AssertionError("devia falhar")
+
+
+def test_ar_pagina_aspx_resolve_ficheiro(monkeypatch):
+    from governo_sombra.ingest import parlamento
+
+    chamadas = []
+
+    def falso_obter(url, **kw):
+        chamadas.append(url)
+        if url.endswith(".aspx"):
+            return b'<a href="/get?fich=IniciativasXVII_json.txt">Iniciativas XVII (JSON)</a>'
+        return b'{"Iniciativas": [{"IniNr": "3", "IniTipo": "J", "IniTitulo": "Resolvido"}]}'
+
+    monkeypatch.setattr(parlamento, "obter", falso_obter)
+    a = parlamento.AdaptadorIniciativasAR()
+    itens = a.recolher("https://www.parlamento.pt/Cidadania/Paginas/DAIniciativas.aspx", {})
+    assert [i.titulo for i in itens] == ["Projeto de Lei 3: Resolvido"]
+    assert a.config_actualizada["url_ficheiro"].endswith("IniciativasXVII_json.txt")
+    assert chamadas[0].endswith(".aspx")

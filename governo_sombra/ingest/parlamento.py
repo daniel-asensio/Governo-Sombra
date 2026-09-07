@@ -153,7 +153,10 @@ class AdaptadorIniciativasAR:
     config_actualizada: dict | None = None
 
     def recolher(self, url: str, config: dict, corpo: bytes | None = None) -> list[ItemBruto]:
-        if corpo is None and "DadosAbertos" in url:
+        import re
+
+        e_pagina = not re.search(r"json|getfile|\.txt$", url, re.I)
+        if corpo is None and e_pagina:
             url = _resolver_ficheiro(url, config)
             self.config_actualizada = {"url_ficheiro": url}
         corpo = corpo if corpo is not None else obter(url)
