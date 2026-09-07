@@ -10,7 +10,7 @@ fontes:
   url: https://diariodarepublica.pt/dr/home
   config:
     serie: 1
-  verificada: false
+  verificada: true
   prioridade: 10
 - id: dre-serie-2
   entidade: diario-republica
@@ -19,7 +19,7 @@ fontes:
   url: https://diariodarepublica.pt/dr/home
   config:
     serie: 2
-  verificada: false
+  verificada: true
   prioridade: 6
 - id: ar-iniciativas
   entidade: assembleia-republica
@@ -28,7 +28,7 @@ fontes:
   url: https://www.parlamento.pt/Cidadania/Paginas/DAIniciativas.aspx
   config:
     nota: Procura sozinho o ficheiro JSON de Iniciativas mais recente nesta página.
-  verificada: false
+  verificada: true
   prioridade: 9
 - id: ar-agenda
   entidade: assembleia-republica
@@ -43,7 +43,7 @@ fontes:
       data: time, .date, .data
       resumo: p
     navegador: true
-  verificada: false
+  verificada: true
   prioridade: 8
   activa: true
 - id: ar-noticias
@@ -81,7 +81,7 @@ fontes:
       link: a
       data: time, .date, .data
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 7
 - id: governo-agenda
   entidade: governo
@@ -111,7 +111,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 7
 - id: tc-acordaos
   entidade: tribunal-constitucional
@@ -208,7 +208,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 7
 - id: at-noticias
   entidade: autoridade-tributaria
@@ -303,7 +303,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 6
 - id: dgaep-noticias
   entidade: dgaep
@@ -317,7 +317,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 5
 - id: bep-concursos
   entidade: bep
@@ -340,7 +340,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 6
 - id: ansr-noticias
   entidade: ansr
@@ -474,7 +474,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 5
 - id: dges-noticias
   entidade: dges
@@ -525,7 +525,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 5
 - id: infarmed-noticias
   entidade: infarmed
@@ -560,7 +560,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 6
 - id: imt-noticias
   entidade: imt
@@ -616,7 +616,7 @@ fontes:
       link: a
       data: time, .date
       resumo: p
-  verificada: false
+  verificada: true
   prioridade: 7
 - id: iefp-noticias
   entidade: iefp
