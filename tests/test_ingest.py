@@ -141,3 +141,38 @@ def test_ar_pagina_aspx_resolve_ficheiro(monkeypatch):
     assert [i.titulo for i in itens] == ["Projeto de Lei 3: Resolvido"]
     assert a.config_actualizada["url_ficheiro"].endswith("IniciativasXVII_json.txt")
     assert chamadas[0].endswith(".aspx")
+
+
+def test_rss_com_bom_e_html_em_vez_de_feed():
+    from governo_sombra.ingest.rss import AdaptadorRSS
+
+    com_bom = b"\xef\xbb\xbf\n\n" + (FIXTURES / "sns-noticias.xml").read_bytes()
+    assert len(AdaptadorRSS().recolher("https://x", {}, corpo=com_bom)) == 2
+    html = b"<!DOCTYPE html><html><body><div><a href='/n/1'>Governo aprova regime novo de apoio ao arrendamento</a></div></body></html>"
+    itens = AdaptadorRSS().recolher("https://exemplo.gov.pt/rss", {}, corpo=html)
+    assert len(itens) == 1 and "aviso" in itens[0].extra
+
+
+def test_fonte_404_desactiva_ao_fim_de_tres(bd):
+    from governo_sombra.ingest import runner
+    from governo_sombra.ingest.base import ErroFonte
+
+    def falha(url, **kw):
+        raise ErroFonte("HTTPStatusError: Client error '404 Not Found' for url")
+
+    from governo_sombra.ingest import html as mod_html
+
+    with bd.sessao_ctx() as s:
+        f = s.get(Fonte, "sns-noticias")
+        f.activa = True
+        f.tipo = "html"
+        s.commit()
+        original = mod_html.obter
+        mod_html.obter = falha
+        try:
+            for _ in range(3):
+                runner.recolher_fonte(s, f)
+        finally:
+            mod_html.obter = original
+        assert f.activa is False
+        assert "Desactivada automaticamente" in f.config["nota"]

@@ -71,6 +71,8 @@ def recolher_fonte(s: Session, fonte: Fonte, *, dir_fixtures: Path | None = None
         fonte.total_itens = (fonte.total_itens or 0) + novos
         if novos or brutos:
             fonte.verificada = True
+        if (fonte.config or {}).get("falhas_seguidas"):
+            fonte.config = {**fonte.config, "falhas_seguidas": 0}
         s.commit()
         log.info("%s: %d novos (%d lidos)", fonte.id, novos, len(brutos))
         return novos, None
@@ -78,6 +80,15 @@ def recolher_fonte(s: Session, fonte: Fonte, *, dir_fixtures: Path | None = None
         s.rollback()
         fonte.ultima_recolha = agora()
         fonte.ultimo_erro = str(e)[:2000]
+        cfg = dict(fonte.config or {})
+        cfg["falhas_seguidas"] = int(cfg.get("falhas_seguidas") or 0) + 1
+        definitivo = "404" in str(e) or "410" in str(e)
+        limite = 3 if definitivo else 8
+        if cfg["falhas_seguidas"] >= limite and not fonte.ultimo_sucesso:
+            fonte.activa = False
+            cfg["nota"] = f"Desactivada automaticamente: {cfg['falhas_seguidas']} falhas seguidas ({'endereço não existe' if definitivo else 'sem resposta'}). Usa 'diagnosticar' para encontrar o endereço certo e reactivar."
+            log.warning("%s: desactivada após %d falhas", fonte.id, cfg["falhas_seguidas"])
+        fonte.config = cfg
         s.commit()
         log.warning("%s: erro %s", fonte.id, e)
         return 0, str(e)

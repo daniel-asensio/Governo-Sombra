@@ -26,6 +26,17 @@ class AdaptadorRSS:
                     i.tipo_documento = tipo
             return itens
         corpo = corpo if corpo is not None else obter(url)
+        inicio = corpo.lstrip()[:300].lower()
+        if b"<html" in inicio or b"<!doctype html" in inicio:
+            # Não é um feed: é uma página. Ler as ligações que parecem títulos.
+            from .html import extrair_itens, extrair_ligacoes_heuristico
+
+            itens = extrair_itens(corpo, url, config) or extrair_ligacoes_heuristico(corpo, url, config)
+            if itens:
+                for i in itens:
+                    i.extra = {**(i.extra or {}), "aviso": "o endereço não é um feed RSS; lido como página"}
+                return itens
+            raise ValueError("o endereço devolve uma página HTML, não um feed RSS, e a página não tem ligações reconhecíveis. Usar 'diagnosticar' para encontrar o feed certo.")
         feed = feedparser.parse(corpo)
         if feed.bozo and not feed.entries:
             raise ValueError(f"feed inválido: {getattr(feed, 'bozo_exception', 'desconhecido')}")

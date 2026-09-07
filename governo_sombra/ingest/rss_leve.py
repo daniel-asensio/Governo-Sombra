@@ -62,9 +62,15 @@ def _item_de(el) -> ItemBruto | None:
 def _iterar(fluxo, maximo: int) -> list[ItemBruto]:
     parser = ET.XMLPullParser(events=("start", "end"))
     itens: list[ItemBruto] = []
-    profundidade_item = None
+    primeiro = True
     try:
         for bloco in fluxo:
+            if primeiro:
+                # Alguns feeds trazem BOM ou linhas em branco antes do <?xml ...?>, o que o parser recusa.
+                bloco = bloco.lstrip(b"\xef\xbb\xbf \t\r\n")
+                if not bloco:
+                    continue
+                primeiro = False
             parser.feed(bloco)
             for evento, el in parser.read_events():
                 nome = _local(el.tag)
