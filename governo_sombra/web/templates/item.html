@@ -34,7 +34,24 @@
   <div class="accoes-item">
     <form method="post" action="/item/{{ item.id }}/guardar"><button>{{ '★ Guardado' if item.guardado else '☆ Guardar' }}</button></form>
     <a class="botao" href="/sombra/posicao/nova?item={{ item.id }}">Comentar como governo sombra</a>
+    <button type="button" class="secundario botao" id="copiar-claude" title="Copia título, resumo e ligação para colares numa conversa">Copiar para o Claude</button>
   </div>
+  <textarea id="texto-claude" hidden readonly>Explica-me isto e diz-me se me afecta. Se for relevante, sugere uma posição para o governo sombra (apoio, crítica ou alternativa).
+
+Título: {{ item.titulo }}
+Entidade: {{ item.entidade.nome }}{% if item.ministerio and item.ministerio_id != item.entidade_id %} ({{ item.ministerio.nome }}){% endif %}
+Tipo: {{ TIPOS_DOCUMENTO.get(item.tipo_documento, item.tipo_documento) }}
+Data: {{ item.data | data }}
+{% if item.resumo %}Resumo: {{ item.resumo }}
+{% endif %}{% if item.url %}Ligação: {{ item.url }}{% endif %}</textarea>
+  <script>
+  document.getElementById('copiar-claude').addEventListener('click', async function () {
+    var texto = document.getElementById('texto-claude').value;
+    try { await navigator.clipboard.writeText(texto); this.textContent = 'Copiado! Cola no chat'; }
+    catch (e) { var ta = document.getElementById('texto-claude'); ta.hidden = false; ta.select(); this.textContent = 'Selecciona e copia o texto acima'; }
+    var b = this; setTimeout(function () { b.textContent = 'Copiar para o Claude'; }, 4000);
+  });
+  </script>
 </article>
 
 <section>
